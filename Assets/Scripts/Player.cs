@@ -10,9 +10,36 @@ public class Player : MonoBehaviour
     float lastShoot;
 
     public Entity entity;
+    public Health health;
+    public Shape shape;
+
+    float lastDamage;
+    const float ignoreDamageTime = 1f;
+
+    static Collider2D[] hitColliders = new Collider2D[256];
+
+    CircleCollider2D circleCollider;
 
     void Awake() {
         entity = GetComponent<Entity>();
+        health = GetComponent<Health>();
+        shape = GetComponent<Shape>();
+
+        circleCollider = GetComponent<CircleCollider2D>();
+
+        health.health = 3;
+        health.onDamaged.AddListener(health => {
+            if (health <= 0) {
+                // @Todo
+            }
+            else {
+                shape.Blink(ignoreDamageTime);
+                shape.Shake(0.3f, 0.5f);
+                Debug.Log(health);
+            }
+        });
+
+        shape.color = GetComponentInChildren<SpriteRenderer>().color;
     }
 
     public void DoNextFrame(float dt) {
@@ -56,6 +83,21 @@ public class Player : MonoBehaviour
                 projectile.velocity = lookDir * bulletSpeed;
 
                 projectile.IgnoreEntity(entity);
+            }
+        }
+
+        // Damage
+
+        if (Time.time - lastDamage > ignoreDamageTime) {
+
+            int count = Physics2D.OverlapCircleNonAlloc(transform.position, circleCollider.radius, hitColliders);
+
+            for (int i = 0; i < count; i++) {
+                if (hitColliders[i].GetComponent<Enemy>()) {
+                    health.Damage(1);
+                    lastDamage = Time.time;
+                    break;
+                }
             }
         }
     }
