@@ -9,7 +9,13 @@ public class Player : MonoBehaviour
 
     float lastShoot;
 
-    void Update() {
+    public Entity entity;
+
+    void Awake() {
+        entity = GetComponent<Entity>();
+    }
+
+    public void DoNextFrame(float dt) {
         const float speed = 7;
 
         Vector3 targetMoveDir = Vector3.zero;
@@ -23,7 +29,7 @@ public class Player : MonoBehaviour
 
         moveDir = Vector3.SmoothDamp(moveDir, targetMoveDir, ref moveDirVel, moveDirSmoothTime);
 
-        transform.position = transform.position + moveDir * Time.deltaTime * speed;
+        transform.position = transform.position + moveDir * dt * speed;
 
         // Dash
         if (Input.GetKeyDown(KeyCode.Space)) {
@@ -37,8 +43,8 @@ public class Player : MonoBehaviour
             if (Time.time - lastShoot >= shootDelay) {
                 lastShoot = Time.time;
 
-                GameObject cloned = Instantiate(PrefabRegistry.Instance.projectile);
-                cloned.transform.position = transform.position;
+                Projectile projectile = Manager.Instance.AddProjectile();
+                projectile.transform.position = transform.position;
 
                 Vector2 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -46,7 +52,10 @@ public class Player : MonoBehaviour
 
                 const float bulletSpeed = 13f;
 
-                cloned.GetComponent<Projectile>().velocity = lookDir * bulletSpeed;
+                projectile.SetRadius(0.2f);
+                projectile.velocity = lookDir * bulletSpeed;
+
+                projectile.IgnoreEntity(entity);
             }
         }
     }

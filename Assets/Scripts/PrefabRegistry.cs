@@ -15,5 +15,7 @@ public class PrefabRegistry : MonoBehaviour
 
     static PrefabRegistry _instance;
 
+    public GameObject player;
+    public GameObject enemy;
     public GameObject projectile;
 }
