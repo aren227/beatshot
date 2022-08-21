@@ -23,6 +23,7 @@ public struct ShapeProperties {
     public float fadeDuration;
     public bool faded;
 
+    public float prevScale;
     public float targetScale;
     public float scaleTime;
     public float scaleDuration;
@@ -99,6 +100,7 @@ public class Shape : MonoBehaviour
     }
 
     public void Scale(float scale, float time) {
+        props.prevScale = props.targetScale;
         props.targetScale = scale;
         props.scaleTime = props.scaleDuration = time;
     }
@@ -142,7 +144,7 @@ public class Shape : MonoBehaviour
         if (props.faded) col.a = 0;
 
         if (props.scaleTime > 0) {
-            spriteRenderer.transform.localScale = props.scale * Mathf.Lerp(props.targetScale, 1, props.scaleTime / props.scaleDuration);
+            spriteRenderer.transform.localScale = props.scale * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
 
             props.scaleTime -= Mathf.Min(dt, props.scaleTime);
         }

@@ -2,22 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// public class DashPattern {
-//     public Vector2 targetPos;
-
-//     public float duration = 2;
-
-//     public void Init() {
-
-//     }
-
-//     public void Update(float t, float dt) {
-//         if (t < 1) {
-
-//         }
-//     }
-// }
-
 public static class PatternUtil {
     public static Player GetOldestPlayer() {
         Player player = null;
@@ -99,6 +83,8 @@ public class RotatePattern {
 
             yield return null;
         }
+
+        if (entity) entity.transform.eulerAngles = new Vector3(0, 0, to);
     }
 }
 
@@ -134,6 +120,11 @@ public class MoveToPattern {
             entity.transform.eulerAngles = new Vector3(0, 0, t * rotationTarget);
 
             yield return null;
+        }
+
+        if (entity) {
+            entity.transform.position = target;
+            entity.transform.eulerAngles = new Vector3(0, 0, 0);
         }
     }
 }
@@ -220,5 +211,57 @@ public class LaserPattern {
         yield return new WaitForSeconds(laserDuration);
 
         GameObject.DestroyImmediate(anchor);
+    }
+}
+
+public class DashPattern {
+    public Entity entity;
+    public float warningDuration;
+    public float dashDuration;
+    public Vector2 fromPos;
+    public Vector2 targetPos;
+
+    public DashPattern(Entity entity, float warningDuration, float dashDuration) {
+        this.entity = entity;
+        this.warningDuration = warningDuration;
+        this.dashDuration = dashDuration;
+
+        fromPos = entity.transform.position;
+
+        Player player = PatternUtil.GetOldestPlayer();
+        if (player) {
+            targetPos = player.transform.position;
+        }
+        else {
+            targetPos = entity.transform.position;
+        }
+    }
+
+    public IEnumerator Play() {
+        Shape shape = Shape.Create();
+
+        shape.transform.position = targetPos;
+        shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
+        shape.SetType(ShapeType.BOX);
+        shape.SetScale(entity.GetComponentInChildren<Shape>().props.scale);
+
+        yield return new WaitForSeconds(warningDuration);
+
+        GameObject.Destroy(shape.gameObject);
+
+        float begin = Manager.Instance.time;
+
+        while (entity && begin + dashDuration > Manager.Instance.time) {
+            float time = Manager.Instance.time;
+
+            float t = Mathf.Clamp01((time - begin) / dashDuration);
+            t = EasingFunctions.OutQuad(t);
+
+            entity.transform.position = Vector2.Lerp(fromPos, targetPos, t);
+
+            yield return null;
+        }
+
+        if (entity) entity.transform.position = targetPos;
     }
 }

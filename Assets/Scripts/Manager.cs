@@ -139,6 +139,16 @@ public class Manager : MonoBehaviour
             projectiles.RemoveAll(x => !x);
             shapes.RemoveAll(x => !x);
 
+            // Boss beats
+            {
+                int prevBeat = Mathf.FloorToInt(time * bps);
+                int currBeat = Mathf.FloorToInt((time + Time.deltaTime) * bps);
+                if (prevBeat < currBeat) {
+                    boss.shape.props.targetScale = 1.05f;
+                    boss.shape.Scale(1, spb * 0.5f);
+                }
+            }
+
             time += Time.deltaTime;
 
             if (time - shapeRecorder.lastRecordTime > shapeRecordInterval) {
@@ -157,20 +167,22 @@ public class Manager : MonoBehaviour
 
         yield return new WaitForSeconds(4 * spb);
 
-        // #3
-        // 레이저 시계방향, 반시계방향
+        // #4
+        // 타겟팅 점프 - 원
         // 32 beats
         {
-            Debug.Log("#3");
+            Debug.Log("#4");
 
-            StartCoroutine(new LaserPattern(boss.entity, 4 * spb, (32-4) * spb).Play());
-            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 0, 360).Play());
+            for (int i = 0; i < 4; i++) {
+                StartCoroutine(new DashPattern(boss.entity, 2f * spb, 0.5f * spb).Play());
+                yield return new WaitForSeconds(2 * spb);
 
-            yield return new WaitForSeconds(16 * spb);
+                yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 360, 0).Play());
+                StartCoroutine(new BulletCirclePattern(boss.entity, 15).Play());
 
-            yield return new WaitForSeconds(16 * spb);
+                yield return new WaitForSeconds(2 * spb);
+            }
         }
 
         yield return new WaitForSeconds(4 * spb);
@@ -236,7 +248,23 @@ public class Manager : MonoBehaviour
 
         yield return new WaitForSeconds(4 * spb);
 
+        // #3
+        // 레이저 시계방향, 반시계방향
+        // 32 beats
+        {
+            Debug.Log("#3");
 
+            StartCoroutine(new LaserPattern(boss.entity, 4 * spb, (32-4) * spb).Play());
+            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 0, 360).Play());
+
+            yield return new WaitForSeconds(16 * spb);
+
+            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 360, 0).Play());
+
+            yield return new WaitForSeconds(16 * spb);
+        }
+
+        yield return new WaitForSeconds(4 * spb);
 
         yield return new WaitForSeconds(2);
         {
