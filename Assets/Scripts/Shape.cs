@@ -2,12 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shape : MonoBehaviour
-{
+public struct ShapeProperties {
     public Color color;
 
     public float blinkTime;
-    const float blinkPeriod = 0.05f;
+    public const float blinkPeriod = 0.05f;
 
     public float tintTime;
     public float tintDuration;
@@ -24,78 +23,95 @@ public class Shape : MonoBehaviour
     public float targetScale;
     public float scaleTime;
     public float scaleDuration;
+}
 
-    SpriteRenderer spriteRenderer;
+public class Shape : MonoBehaviour
+{
+    public ShapeProperties props;
+
+    public SpriteRenderer spriteRenderer;
 
     void Awake() {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        SetColor(spriteRenderer.color);
+
+        Manager.Instance.shapes.Add(this);
+    }
+
+    void OnDestroy() {
+        // Manager.Instance.shapes.Remove(this);
+    }
+
+    public void SetColor(Color color) {
+        props.color = color;
     }
 
     public void Blink(float time) {
-        blinkTime = time;
+        props.blinkTime = time;
     }
 
     public void Tint(float time, Color color) {
-        tintTime = tintDuration = time;
-        tintColor = color;
+        props.tintTime = props.tintDuration = time;
+        props.tintColor = color;
     }
 
     public void Shake(float time, float intensity) {
-        shakeTime = shakeDuration = time;
-        shakeIntensity = intensity;
+        props.shakeTime = props.shakeDuration = time;
+        props.shakeIntensity = intensity;
     }
 
     public void Fade(float time) {
-        fadeDuration = fadeTime = time;
+        props.fadeDuration = props.fadeTime = time;
     }
 
     public void Scale(float scale, float time) {
-        targetScale = scale;
-        scaleTime = scaleDuration = time;
+        props.targetScale = scale;
+        props.scaleTime = props.scaleDuration = time;
     }
 
-    void Update() {
-        Color col = color;
+    public void DoNextFrame(float dt) {
+        Color col = props.color;
 
-        if (tintTime > 0) {
-            col = Color.Lerp(col, tintColor, tintTime / tintDuration);
+        if (props.tintTime > 0) {
+            col = Color.Lerp(col, props.tintColor, props.tintTime / props.tintDuration);
 
-            tintTime -= Mathf.Min(Time.deltaTime, tintTime);
+            props.tintTime -= Mathf.Min(dt, props.tintTime);
         }
 
-        if (blinkTime > 0) {
-            if (Mathf.FloorToInt(blinkTime / blinkPeriod) % 2 == 0) {
+        if (props.blinkTime > 0) {
+            if (Mathf.FloorToInt(props.blinkTime / ShapeProperties.blinkPeriod) % 2 == 0) {
                 // Set custom color?
                 col = col * 0.2f;
             }
 
-            blinkTime -= Mathf.Min(Time.deltaTime, blinkTime);
+            props.blinkTime -= Mathf.Min(dt, props.blinkTime);
         }
 
-        if (shakeTime > 0) {
+        if (props.shakeTime > 0) {
             const float shakeSpeed = 20;
             Vector2 randomVector = new Vector2(Mathf.PerlinNoise(Time.time * shakeSpeed, 0) - 0.5f, Mathf.PerlinNoise(0, Time.time * shakeSpeed) - 0.5f);
-            spriteRenderer.transform.localPosition = randomVector * (shakeTime / shakeDuration) * shakeIntensity;
+            spriteRenderer.transform.localPosition = randomVector * (props.shakeTime / props.shakeDuration) * props.shakeIntensity;
 
-            shakeTime -= Mathf.Min(Time.deltaTime, shakeTime);
+            props.shakeTime -= Mathf.Min(dt, props.shakeTime);
         }
         else {
             spriteRenderer.transform.localPosition = Vector3.zero;
         }
 
-        if (fadeTime > 0) {
-            col.a *= fadeTime / fadeDuration;
+        if (props.fadeTime > 0) {
+            col.a *= props.fadeTime / props.fadeDuration;
 
-            fadeTime -= Mathf.Min(Time.deltaTime, fadeTime);
-            if (fadeTime <= 0) faded = true;
+            props.fadeTime -= Mathf.Min(dt, props.fadeTime);
+            if (props.fadeTime <= 0) props.faded = true;
         }
 
-        if (faded) col.a = 0;
+        if (props.faded) col.a = 0;
 
-        if (scaleTime > 0) {
-            spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(targetScale, 1, scaleTime / scaleDuration);
+        if (props.scaleTime > 0) {
+            spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(props.targetScale, 1, props.scaleTime / props.scaleDuration);
 
-            scaleTime -= Mathf.Min(Time.deltaTime, scaleTime);
+            props.scaleTime -= Mathf.Min(dt, props.scaleTime);
         }
 
         spriteRenderer.color = col;

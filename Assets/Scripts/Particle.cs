@@ -22,7 +22,7 @@ public class Particle : MonoBehaviour
 
             shapes[i].transform.SetParent(transform, false);
 
-            shapes[i].color = color;
+            shapes[i].SetColor(color);
             shapes[i].transform.localScale = Vector3.one * scale;
             shapes[i].Scale(0f, duration);
 

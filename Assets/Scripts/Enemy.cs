@@ -12,14 +12,12 @@ public class Enemy : MonoBehaviour
         entity = GetComponent<Entity>();
         shape = GetComponent<Shape>();
 
-        shape.color = GetComponentInChildren<SpriteRenderer>().color;
-
         Health health = GetComponent<Health>();
 
         health.health = 100;
         health.onDamaged.AddListener(health => {
             if (health <= 0) {
-                Destroy(gameObject);
+                DestroyImmediate(gameObject);
             }
             else {
                 shape.Shake(0.3f, 0.15f);

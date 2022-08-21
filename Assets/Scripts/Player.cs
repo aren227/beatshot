@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
 
         circleCollider = GetComponent<CircleCollider2D>();
 
-        health.health = 3;
+        health.health = 1;
         health.onDamaged.AddListener(health => {
             shape.Blink(ignoreDamageTime);
             shape.Shake(0.3f, 0.5f);
@@ -35,7 +35,7 @@ public class Player : MonoBehaviour
             Shape drop = Shape.Create();
             drop.transform.position = transform.position;
 
-            drop.color = new Color(shape.color.r, shape.color.g, shape.color.b, 0.2f);
+            drop.SetColor(new Color(shape.props.color.r, shape.props.color.g, shape.props.color.b, 0.2f));
             drop.Fade(0.5f);
             drop.Scale(3f, 0.5f);
 
@@ -46,7 +46,7 @@ public class Player : MonoBehaviour
             particle.transform.position = transform.position;
 
             particle.amount = 32;
-            particle.color = shape.color;
+            particle.color = shape.props.color;
             particle.duration = 0.5f;
             particle.scale = 0.3f;
             particle.speed = 3f;
@@ -54,11 +54,10 @@ public class Player : MonoBehaviour
             Debug.Log(health);
 
             if (health <= 0) {
-                Manager.Instance.RemovePlayer(this);
+                DestroyImmediate(gameObject);
+                Manager.Instance.RewindGame();
             }
         });
-
-        shape.color = GetComponentInChildren<SpriteRenderer>().color;
     }
 
     public void DoNextFrame(float dt) {
@@ -106,9 +105,7 @@ public class Player : MonoBehaviour
         }
 
         // Damage
-
         if (Time.time - lastDamage > ignoreDamageTime) {
-
             int count = Physics2D.OverlapCircleNonAlloc(transform.position, circleCollider.radius, hitColliders);
 
             for (int i = 0; i < count; i++) {

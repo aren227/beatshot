@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Manager : MonoBehaviour
 {
@@ -17,19 +18,32 @@ public class Manager : MonoBehaviour
 
     List<Player> players = new List<Player>();
     List<Projectile> projectiles = new List<Projectile>();
-
-    List<Player> deletePlayers = new List<Player>();
-    List<Projectile> deleteProjectiles = new List<Projectile>();
+    public List<Shape> shapes = new List<Shape>();
 
     int nextPlayerId = 1;
     int nextEntityId = 1;
 
+    ShapeRecorder shapeRecorder;
+    const float shapeRecordInterval = 0.05f;
+
+    public float time = 0;
+
+    public bool isPlaying = false;
+
     void Start() {
+        BeginGame();
+    }
+
+    public void BeginGame() {
         Enemy enemy = AddEnemy();
         enemy.transform.position = Vector3.zero;
 
         Player player = AddPlayer();
         player.transform.position = new Vector2(0, -3);
+
+        shapeRecorder = new ShapeRecorder();
+
+        isPlaying = true;
     }
 
     public Player AddPlayer() {
@@ -41,12 +55,6 @@ public class Manager : MonoBehaviour
         player.entity.id = -nextPlayerId++;
 
         return player;
-    }
-
-    public void RemovePlayer(Player player) {
-        deletePlayers.Add(player);
-
-        Destroy(player.gameObject);
     }
 
     public Enemy AddEnemy() {
@@ -66,28 +74,131 @@ public class Manager : MonoBehaviour
     }
 
     public void RemoveProjectile(Projectile projectile) {
-        deleteProjectiles.Add(projectile);
-
-        Destroy(projectile.gameObject);
+        DestroyImmediate(projectile.gameObject);
     }
 
     void Update() {
-        foreach (Player player in players) {
-            player.DoNextFrame(Time.deltaTime);
-        }
+        if (isPlaying) {
+            foreach (Player player in players) {
+                if (!player) continue;
+                player.DoNextFrame(Time.deltaTime);
+            }
 
-        foreach (Projectile projectile in projectiles) {
-            projectile.DoNextFrame(Time.deltaTime);
-        }
+            foreach (Projectile projectile in projectiles) {
+                if (!projectile) continue;
+                projectile.DoNextFrame(Time.deltaTime);
+            }
 
-        foreach (Player player in deletePlayers) {
-            players.Remove(player);
-        }
-        deletePlayers.Clear();
+            foreach (Shape shape in shapes) {
+                if (!shape) continue;
+                shape.DoNextFrame(Time.deltaTime);
+            }
 
-        foreach (Projectile projectile in deleteProjectiles) {
-            projectiles.Remove(projectile);
+            // Remove invalid pointers.
+            players.RemoveAll(x => !x);
+            projectiles.RemoveAll(x => !x);
+            shapes.RemoveAll(x => !x);
+
+            time += Time.deltaTime;
+
+            if (time - shapeRecorder.lastRecordTime > shapeRecordInterval) {
+                shapeRecorder.TakeSnapshot();
+                Debug.Log("Take snapshot at" + time);
+            }
         }
-        deleteProjectiles.Clear();
     }
+
+    public void RewindGame() {
+        // StartCoroutine(RewindGameCoroutine());
+
+        DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutQuad).SetUpdate(true).OnComplete(() => {
+
+            foreach (Player player in players) if (player) DestroyImmediate(player.gameObject);
+            foreach (Projectile projectile in projectiles) if (projectile) DestroyImmediate(projectile.gameObject);
+            foreach (Shape shape in shapes) if (shape) DestroyImmediate(shape.gameObject);
+
+            // @Inefficient
+            foreach (Particle particle in FindObjectsOfType<Particle>()) {
+                DestroyImmediate(particle.gameObject);
+            }
+
+            players.Clear();
+            projectiles.Clear();
+            shapes.Clear();
+
+            float rewindDuration = time * 0.2f;
+
+            isPlaying = false;
+
+            Time.timeScale = 1;
+
+            DOTween.To(() => time, x => {
+                time = x;
+
+                foreach (Shape shape in shapes) {
+                    DestroyImmediate(shape.gameObject);
+                }
+                shapes.Clear();
+
+                shapeRecorder.Show(time);
+            }, 0, rewindDuration).SetEase(Ease.InOutQuad).OnComplete(() => {
+
+                Time.timeScale = 0;
+
+                foreach (Shape shape in shapes) {
+                    DestroyImmediate(shape.gameObject);
+                }
+                shapes.Clear();
+
+                BeginGame();
+
+                DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, 0.5f).SetEase(Ease.InQuad).SetUpdate(true);
+            });
+        });
+    }
+
+    // IEnumerator RewindGameCoroutine() {
+    //     yield return null;
+
+    //     DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutCubic).SetUpdate(true);
+    //     yield return new WaitForSecondsRealtime(1);
+
+    //     foreach (Player player in players) Destroy(player.gameObject);
+    //     foreach (Projectile projectile in projectiles) Destroy(projectile.gameObject);
+    //     foreach (Shape shape in shapes) Destroy(shape.gameObject);
+
+    //     // @Inefficient
+    //     foreach (Particle particle in FindObjectsOfType<Particle>()) {
+    //         Destroy(particle.gameObject);
+    //     }
+
+    //     players.Clear();
+    //     projectiles.Clear();
+    //     shapes.Clear();
+
+    //     float rewindDuration = time * 1f;
+
+    //     isPlaying = false;
+
+    //     Time.timeScale = 1;
+
+    //     DOTween.To(() => time, x => {
+    //         time = x;
+
+    //         foreach (Shape shape in shapes) {
+    //             DestroyImmediate(shape.gameObject);
+    //         }
+    //         shapes.Clear();
+
+    //         shapeRecorder.Show(time);
+    //     }, 0, rewindDuration).SetEase(Ease.InOutCubic);
+    //     yield return new WaitForSecondsRealtime(rewindDuration);
+
+    //     Time.timeScale = 0;
+
+    //     DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, 0.5f).SetEase(Ease.InCubic).SetUpdate(true);
+    //     yield return new WaitForSecondsRealtime(0.5f);
+
+    //     BeginGame();
+    // }
 }
