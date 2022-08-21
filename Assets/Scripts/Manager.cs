@@ -18,9 +18,11 @@ public class Manager : MonoBehaviour
     List<Player> players = new List<Player>();
     List<Projectile> projectiles = new List<Projectile>();
 
+    List<Player> deletePlayers = new List<Player>();
     List<Projectile> deleteProjectiles = new List<Projectile>();
 
-    int nextEntityId = 0;
+    int nextPlayerId = 1;
+    int nextEntityId = 1;
 
     void Start() {
         Enemy enemy = AddEnemy();
@@ -36,13 +38,15 @@ public class Manager : MonoBehaviour
 
         players.Add(player);
 
-        player.entity.id = -players.Count;
+        player.entity.id = -nextPlayerId++;
 
         return player;
     }
 
     public void RemovePlayer(Player player) {
-        // @Todo
+        deletePlayers.Add(player);
+
+        Destroy(player.gameObject);
     }
 
     public Enemy AddEnemy() {
@@ -75,6 +79,11 @@ public class Manager : MonoBehaviour
         foreach (Projectile projectile in projectiles) {
             projectile.DoNextFrame(Time.deltaTime);
         }
+
+        foreach (Player player in deletePlayers) {
+            players.Remove(player);
+        }
+        deletePlayers.Clear();
 
         foreach (Projectile projectile in deleteProjectiles) {
             projectiles.Remove(projectile);

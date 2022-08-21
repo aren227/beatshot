@@ -156,6 +156,7 @@ MonoBehaviour:
   player: {fileID: 8536708940137984105, guid: b0dc2eb0f9ce3714da75f7136ac6f3d3, type: 3}
   enemy: {fileID: 7586866554804613469, guid: 0f9b887d4e2f45644a85500fa0aec8ae, type: 3}
   projectile: {fileID: 9222497906911686762, guid: 8a8d60befd934d34db1633bf2b6be1d5, type: 3}
+  shape: {fileID: 3997094830818932380, guid: df7ce2d13fdcaae4292bef275668f5f0, type: 3}
 --- !u!4 &51542214
 Transform:
   m_ObjectHideFlags: 0

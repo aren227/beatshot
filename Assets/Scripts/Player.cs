@@ -29,13 +29,32 @@ public class Player : MonoBehaviour
 
         health.health = 3;
         health.onDamaged.AddListener(health => {
+            shape.Blink(ignoreDamageTime);
+            shape.Shake(0.3f, 0.5f);
+
+            Shape drop = Shape.Create();
+            drop.transform.position = transform.position;
+
+            drop.color = new Color(shape.color.r, shape.color.g, shape.color.b, 0.2f);
+            drop.Fade(0.5f);
+            drop.Scale(3f, 0.5f);
+
+            // Particle
+            Particle particle = Particle.Create();
+
+            // particle.transform.SetParent(transform, false);
+            particle.transform.position = transform.position;
+
+            particle.amount = 32;
+            particle.color = shape.color;
+            particle.duration = 0.5f;
+            particle.scale = 0.3f;
+            particle.speed = 3f;
+
+            Debug.Log(health);
+
             if (health <= 0) {
-                // @Todo
-            }
-            else {
-                shape.Blink(ignoreDamageTime);
-                shape.Shake(0.3f, 0.5f);
-                Debug.Log(health);
+                Manager.Instance.RemovePlayer(this);
             }
         });
 

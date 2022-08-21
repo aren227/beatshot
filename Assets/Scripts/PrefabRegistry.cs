@@ -18,4 +18,5 @@ public class PrefabRegistry : MonoBehaviour
     public GameObject player;
     public GameObject enemy;
     public GameObject projectile;
+    public GameObject shape;
 }

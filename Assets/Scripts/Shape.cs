@@ -17,6 +17,14 @@ public class Shape : MonoBehaviour
     public float shakeDuration;
     public float shakeIntensity;
 
+    public float fadeTime;
+    public float fadeDuration;
+    public bool faded;
+
+    public float targetScale;
+    public float scaleTime;
+    public float scaleDuration;
+
     SpriteRenderer spriteRenderer;
 
     void Awake() {
@@ -35,6 +43,15 @@ public class Shape : MonoBehaviour
     public void Shake(float time, float intensity) {
         shakeTime = shakeDuration = time;
         shakeIntensity = intensity;
+    }
+
+    public void Fade(float time) {
+        fadeDuration = fadeTime = time;
+    }
+
+    public void Scale(float scale, float time) {
+        targetScale = scale;
+        scaleTime = scaleDuration = time;
     }
 
     void Update() {
@@ -66,6 +83,26 @@ public class Shape : MonoBehaviour
             spriteRenderer.transform.localPosition = Vector3.zero;
         }
 
+        if (fadeTime > 0) {
+            col.a *= fadeTime / fadeDuration;
+
+            fadeTime -= Mathf.Min(Time.deltaTime, fadeTime);
+            if (fadeTime <= 0) faded = true;
+        }
+
+        if (faded) col.a = 0;
+
+        if (scaleTime > 0) {
+            spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(targetScale, 1, scaleTime / scaleDuration);
+
+            scaleTime -= Mathf.Min(Time.deltaTime, scaleTime);
+        }
+
         spriteRenderer.color = col;
+    }
+
+    public static Shape Create() {
+        Shape shape = Instantiate(PrefabRegistry.Instance.shape).GetComponent<Shape>();
+        return shape;
     }
 }
