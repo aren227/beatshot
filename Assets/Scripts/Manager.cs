@@ -167,6 +167,29 @@ public class Manager : MonoBehaviour
 
         yield return new WaitForSeconds(4 * spb);
 
+        // @Todo: All pattern coroutines must be force stopped when the game is restarting.
+        // @Todo: If target is invalid, then target to current player, not oldest.
+        // This implies pattern states should be shared.
+
+        // #5
+        // 상하좌우 영역
+        // 8 beats
+        {
+            Debug.Log("#5");
+
+            StartCoroutine(new ShootPattern(boss.entity, 16f * spb, 2f * spb).Play());
+
+            StartCoroutine(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, -2.5f)).Play());
+
+            StartCoroutine(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, 5), new Vector2(20, 10), new Vector2(1, 0)).Play());
+            yield return new WaitForSeconds(8f * spb);
+
+            StartCoroutine(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, 2.5f)).Play());
+
+            StartCoroutine(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, -5), new Vector2(20, 10), new Vector2(1, 0)).Play());
+            yield return new WaitForSeconds(8f * spb);
+        }
+
         // #4
         // 타겟팅 점프 - 원
         // 32 beats

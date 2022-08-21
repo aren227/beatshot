@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public static class PatternUtil {
     public static Player GetOldestPlayer() {
@@ -23,9 +24,10 @@ public class ShootPattern {
 
     float lastShoot;
 
-    public ShootPattern(Entity entity, float duration) {
+    public ShootPattern(Entity entity, float duration, float shootRate = 0.15f) {
         this.entity = entity;
         this.duration = duration;
+        this.shootRate = shootRate;
     }
 
     public IEnumerator Play() {
@@ -263,5 +265,48 @@ public class DashPattern {
         }
 
         if (entity) entity.transform.position = targetPos;
+    }
+}
+
+public class AreaPattern {
+    public float warningDuration;
+    public float transitionDuration = 0.5f;
+    public float duration;
+    public Vector2 moveDirection;
+    public Vector2 center;
+    public Vector2 size;
+
+    public AreaPattern(float warningDuration, float duration, Vector2 center, Vector2 size, Vector2 moveDirection) {
+        this.warningDuration = warningDuration;
+        this.duration = duration;
+        this.center = center;
+        this.size = size;
+        this.moveDirection = moveDirection;
+    }
+
+    public IEnumerator Play() {
+        Shape shape = Shape.Create();
+
+        shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
+        shape.SetType(ShapeType.BOX);
+
+        shape.SetScale(size);
+        shape.transform.position = center;
+
+        yield return new WaitForSeconds(warningDuration);
+
+        shape.SetColor(Color.red);
+        shape.SetToEnemy();
+
+        float begin = Manager.Instance.time;
+
+        shape.transform.position = center - moveDirection * 20;
+        shape.transform.DOMove(center, transitionDuration);
+
+        yield return new WaitForSeconds(duration);
+
+        shape.transform.DOMove(center + moveDirection * 20, transitionDuration).OnComplete(() => {
+            if (shape) GameObject.DestroyImmediate(shape.gameObject);
+        });
     }
 }
