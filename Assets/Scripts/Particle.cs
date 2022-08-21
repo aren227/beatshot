@@ -13,6 +13,8 @@ public class Particle : MonoBehaviour
     public float scale;
     public float speed;
 
+    float beginTime;
+
     void Start() {
         shapes = new Shape[amount];
         velocities = new Vector2[amount];
@@ -31,11 +33,17 @@ public class Particle : MonoBehaviour
 
             velocities[i] = Random.insideUnitCircle.normalized * speed * Random.Range(0.5f, 1f);
         }
+
+        beginTime = Manager.Instance.time;
     }
 
     void Update() {
         for (int i = 0; i < amount; i++) {
             shapes[i].transform.position = shapes[i].transform.position + (Vector3)velocities[i] * Time.deltaTime;
+        }
+
+        if (beginTime + duration <= Manager.Instance.time) {
+            DestroyImmediate(gameObject);
         }
     }
 

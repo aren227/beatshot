@@ -18,8 +18,8 @@ public class Manager : MonoBehaviour
 
     public Player currentPlayer;
 
-    List<Player> players = new List<Player>();
-    List<Projectile> projectiles = new List<Projectile>();
+    public List<Player> players = new List<Player>();
+    public List<Projectile> projectiles = new List<Projectile>();
     public List<Shape> shapes = new List<Shape>();
 
     int nextPlayerId = 1;
@@ -36,13 +36,15 @@ public class Manager : MonoBehaviour
 
     public bool isPlaying = false;
 
+    Coroutine bossPatternCoroutine;
+
     void Start() {
         BeginGame();
     }
 
     public void BeginGame() {
-        Enemy enemy = AddEnemy();
-        enemy.transform.position = Vector3.zero;
+        // Enemy enemy = AddEnemy();
+        // enemy.transform.position = Vector3.zero;
 
         currentPlayer = AddPlayer();
 
@@ -75,6 +77,8 @@ public class Manager : MonoBehaviour
             clonedPlayer.transform.localScale = Vector3.zero;
             clonedPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutQuad).SetUpdate(true);
         }
+
+        bossPatternCoroutine = StartCoroutine(DoBossPattern());
     }
 
     public Player AddPlayer() {
@@ -138,6 +142,30 @@ public class Manager : MonoBehaviour
         }
     }
 
+    public IEnumerator DoBossPattern() {
+        Enemy boss = AddEnemy();
+        boss.transform.position = Vector3.zero;
+
+        yield return new WaitForSeconds(2);
+        {
+            ShootPattern pattern = new ShootPattern(boss.entity, 20f);
+
+            StartCoroutine(pattern.Play());
+        }
+        for (int i = 0; i < 10; i++) {
+            Vector2 target;
+            // @Hardcoded
+            if (i % 2 == 0) target = new Vector2(-5, 0);
+            else target = new Vector2(5, 0);
+
+            MoveToPattern pattern = new MoveToPattern(boss.entity, 3, target);
+
+            StartCoroutine(pattern.Play());
+
+            yield return new WaitForSeconds(3);
+        }
+    }
+
     public void RewindGame() {
         // StartCoroutine(RewindGameCoroutine());
 
@@ -161,6 +189,9 @@ public class Manager : MonoBehaviour
             isPlaying = false;
 
             Time.timeScale = 1;
+
+            // Stop boss pattern.
+            StopCoroutine(bossPatternCoroutine);
 
             // Flush player recorder.
             if (playerRecorders.Count >= maxClonedPlayers) {

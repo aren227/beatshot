@@ -21,6 +21,7 @@ public class ShapeRecorder
             shapeSnapshot.color = shape.spriteRenderer.color;
             shapeSnapshot.type = shape.props.type;
             shapeSnapshot.position = shape.spriteRenderer.transform.position;
+            shapeSnapshot.rotation = shape.transform.eulerAngles.z;
             shapeSnapshot.scale = shape.spriteRenderer.transform.lossyScale;
 
             frameSnapshot.shapeSnapshots.Add(shapeSnapshot);
@@ -56,6 +57,11 @@ public class FrameSnapshot {
             Shape shape = Shape.Create();
 
             shape.transform.position = shapeSnapshot.position;
+
+            Vector3 eulerAngles = shape.transform.eulerAngles;
+            eulerAngles.z = shapeSnapshot.rotation;
+            shape.transform.eulerAngles = eulerAngles;
+
             shape.transform.localScale = shapeSnapshot.scale;
             shape.SetColor(shapeSnapshot.color);
             shape.SetType(shapeSnapshot.type);
@@ -69,5 +75,6 @@ public class ShapeSnapshot {
     public ShapeType type;
     public Color color;
     public Vector3 position;
+    public float rotation;
     public Vector3 scale;
 }
