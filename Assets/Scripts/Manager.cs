@@ -18,6 +18,8 @@ public class Manager : MonoBehaviour
 
     public Player currentPlayer;
 
+    public Enemy boss;
+
     public List<Player> players = new List<Player>();
     public List<Projectile> projectiles = new List<Projectile>();
     public List<Shape> shapes = new List<Shape>();
@@ -35,6 +37,11 @@ public class Manager : MonoBehaviour
     public float time = 0;
 
     public bool isPlaying = false;
+
+    float bpm = 127.95f;
+    float bps => bpm / 60;
+    float spb => 1f / bps;
+    float beamTime => time * bps;
 
     Coroutine bossPatternCoroutine;
 
@@ -79,6 +86,8 @@ public class Manager : MonoBehaviour
         }
 
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
+
+        Music.Instance.audioSource.Play();
     }
 
     public Player AddPlayer() {
@@ -143,14 +152,97 @@ public class Manager : MonoBehaviour
     }
 
     public IEnumerator DoBossPattern() {
-        Enemy boss = AddEnemy();
+        boss = AddEnemy();
         boss.transform.position = Vector3.zero;
+
+        yield return new WaitForSeconds(4 * spb);
+
+        // #3
+        // 레이저 시계방향, 반시계방향
+        // 32 beats
+        {
+            Debug.Log("#3");
+
+            StartCoroutine(new LaserPattern(boss.entity, 4 * spb, (32-4) * spb).Play());
+            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 0, 360).Play());
+
+            yield return new WaitForSeconds(16 * spb);
+
+            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 360, 0).Play());
+
+            yield return new WaitForSeconds(16 * spb);
+        }
+
+        yield return new WaitForSeconds(4 * spb);
+
+        // #1
+        // 왔다갔다 하면서 타겟팅
+        // 16 beats
+        {
+            Debug.Log("#1");
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)).Play());
+            StartCoroutine(new ShootPattern(boss.entity, 2 * spb).Play());
+
+            yield return new WaitForSeconds(4 * spb);
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)).Play());
+            StartCoroutine(new ShootPattern(boss.entity, 2 * spb).Play());
+
+            yield return new WaitForSeconds(4 * spb);
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)).Play());
+            StartCoroutine(new ShootPattern(boss.entity, 8 * spb).Play());
+
+            yield return new WaitForSeconds(4 * spb);
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)).Play());
+
+            yield return new WaitForSeconds(4 * spb);
+        }
+
+        yield return new WaitForSeconds(4 * spb);
+
+        // #2
+        // 왼쪽에서 원, 오른쪽에서 원, 중앙에서 원x3
+        // 16 beats
+        {
+            Debug.Log("#2");
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new BulletCirclePattern(boss.entity, 15).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new BulletCirclePattern(boss.entity, -15).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new BulletCirclePattern(boss.entity, 0).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new BulletCirclePattern(boss.entity, 15).Play());
+            yield return new WaitForSeconds(2 * spb);
+
+            StartCoroutine(new BulletCirclePattern(boss.entity, 30).Play());
+            yield return new WaitForSeconds(2 * spb);
+        }
+
+        yield return new WaitForSeconds(4 * spb);
+
+
 
         yield return new WaitForSeconds(2);
         {
-            ShootPattern pattern = new ShootPattern(boss.entity, 20f);
+            // ShootPattern pattern = new ShootPattern(boss.entity, 20f);
 
-            StartCoroutine(pattern.Play());
+            // StartCoroutine(pattern.Play());
         }
         for (int i = 0; i < 10; i++) {
             Vector2 target;
@@ -199,6 +291,8 @@ public class Manager : MonoBehaviour
             }
             playerRecorders.Add(currentPlayerRecorder);
             currentPlayerRecorder = null;
+
+            Music.Instance.audioSource.Stop();
 
             DOTween.To(() => time, x => {
                 time = x;

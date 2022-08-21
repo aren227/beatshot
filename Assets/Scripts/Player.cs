@@ -18,8 +18,6 @@ public class Player : MonoBehaviour
 
     static Collider2D[] hitColliders = new Collider2D[256];
 
-    CircleCollider2D circleCollider;
-
     public bool shootFlag;
     public Vector2 shootDirection;
 
@@ -28,12 +26,14 @@ public class Player : MonoBehaviour
     void Awake() {
         entity = GetComponent<Entity>();
         health = GetComponent<Health>();
-        shape = GetComponent<Shape>();
-
-        circleCollider = GetComponent<CircleCollider2D>();
+        shape = GetComponentInChildren<Shape>();
 
         health.health = 1;
         health.onDamaged.AddListener(TakeDamage);
+    }
+
+    void Start() {
+        shape.SetRadius(0.25f);
     }
 
     public void TakeDamage(int health) {
@@ -81,7 +81,7 @@ public class Player : MonoBehaviour
 
         const float bulletSpeed = 13f;
 
-        projectile.SetRadius(0.2f);
+        projectile.shape.SetRadius(0.2f);
         projectile.velocity = direction * bulletSpeed;
 
         projectile.IgnoreEntity(entity);
@@ -130,14 +130,19 @@ public class Player : MonoBehaviour
 
             // Damage
             if (Time.time - lastDamage > ignoreDamageTime) {
-                int count = Physics2D.OverlapCircleNonAlloc(transform.position, circleCollider.radius, hitColliders);
+                int count = Physics2D.OverlapCircleNonAlloc(transform.position, shape.GetRadius(), hitColliders, LayerMask.GetMask("Enemy"));
 
-                for (int i = 0; i < count; i++) {
-                    if (hitColliders[i].GetComponent<Enemy>()) {
-                        health.Damage(1);
-                        lastDamage = Time.time;
-                        break;
-                    }
+                // for (int i = 0; i < count; i++) {
+                //     if (hitColliders[i].GetComponent<Enemy>()) {
+                //         health.Damage(1);
+                //         lastDamage = Time.time;
+                //         break;
+                //     }
+                // }
+
+                if (count > 0) {
+                    health.Damage(1);
+                    lastDamage = Time.time;
                 }
             }
         }

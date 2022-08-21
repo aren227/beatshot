@@ -9,14 +9,15 @@ public class Projectile : MonoBehaviour
 
     List<int> collidedEntities = new List<int>();
 
+    public Shape shape;
+
     static RaycastHit2D[] hits = new RaycastHit2D[256];
 
-    void Start() {
+    void Awake() {
+        shape = GetComponentInChildren<Shape>();
     }
 
-    public void SetRadius(float radius) {
-        this.radius = radius;
-        transform.localScale = Vector3.one * radius * 2;
+    void Start() {
     }
 
     public void IgnoreEntity(Entity entity) {
@@ -28,13 +29,13 @@ public class Projectile : MonoBehaviour
         Vector2 nextPos = curPos + velocity * dt;
 
         int ignoreSelfLayer = ~(1 << gameObject.layer);
-        int count = Physics2D.CircleCastNonAlloc(curPos, radius, (nextPos-curPos).normalized, hits, (nextPos-curPos).magnitude, ignoreSelfLayer);
+        int count = Physics2D.CircleCastNonAlloc(curPos, shape.GetRadius(), (nextPos-curPos).normalized, hits, (nextPos-curPos).magnitude, ignoreSelfLayer);
 
         bool destroy = false;
 
         // @Todo: Use layers to speed it up.
         for (int i = 0; i < count; i++) {
-            Entity entity = hits[i].collider.GetComponent<Entity>();
+            Entity entity = hits[i].collider.GetComponentInParent<Entity>();
             if (!entity) continue;
 
             if (collidedEntities.Contains(entity.id)) continue;
@@ -42,7 +43,7 @@ public class Projectile : MonoBehaviour
             // Collide only once.
             collidedEntities.Add(entity.id);
 
-            Health health = hits[i].collider.GetComponent<Health>();
+            Health health = entity.GetComponent<Health>();
             if (health) {
                 health.Damage(1);
                 destroy = true;
@@ -56,7 +57,7 @@ public class Projectile : MonoBehaviour
             particle.transform.position = transform.position;
 
             particle.amount = 16;
-            particle.color = GetComponent<Shape>().props.color;
+            particle.color = GetComponentInChildren<Shape>().props.color;
             particle.duration = 0.3f;
             particle.scale = 0.2f;
             particle.speed = 3f;

@@ -58,7 +58,7 @@ public class ShootPattern {
 
                 Vector2 direction = (target.transform.position - entity.transform.position).normalized;
 
-                projectile.SetRadius(0.3f);
+                projectile.shape.SetRadius(0.3f);
                 projectile.velocity = direction * bulletSpeed;
 
                 projectile.IgnoreEntity(entity);
@@ -76,12 +76,14 @@ public class RotatePattern {
     public Entity entity;
     public float duration;
 
-    public float warmup = 1f;
-    public float speed = 45f;
+    public float from;
+    public float to;
 
-    public RotatePattern(Entity entity, float duration) {
+    public RotatePattern(Entity entity, float duration, float from, float to) {
         this.entity = entity;
         this.duration = duration;
+        this.from = from;
+        this.to = to;
     }
 
     public IEnumerator Play() {
@@ -90,15 +92,10 @@ public class RotatePattern {
         while (entity && begin + duration > Manager.Instance.time) {
             float time = Manager.Instance.time;
 
-            float t = 1;
-            if (begin + duration - time < warmup) {
-                t = (begin + duration - time) / warmup;
-            }
-            else if (time - begin < warmup) {
-                t = (time - begin) / warmup;
-            }
+            float t = Mathf.Clamp01((time - begin) / duration);
+            t = EasingFunctions.InOutQuad(t);
 
-            entity.transform.Rotate(new Vector3(0, 0, t * speed * Time.deltaTime), Space.Self);
+            entity.transform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(from, to, t));
 
             yield return null;
         }
@@ -138,5 +135,90 @@ public class MoveToPattern {
 
             yield return null;
         }
+    }
+}
+
+public class BulletCirclePattern {
+    public Entity entity;
+    public int count = 16;
+    public float beginAngle = 0;
+    public float bulletRadius = 0.3f;
+    public float bulletSpeed = 6;
+
+    public BulletCirclePattern(Entity entity, float beginAngle) {
+        this.entity = entity;
+        this.beginAngle = beginAngle;
+    }
+
+    public IEnumerator Play() {
+        for (int i = 0; i < count; i++) {
+            Projectile projectile = Manager.Instance.AddProjectile();
+            projectile.transform.position = entity.transform.position;
+
+            float angle = beginAngle * Mathf.Deg2Rad + (float)i / 16f * Mathf.PI * 2;
+
+            Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+            projectile.shape.SetRadius(bulletRadius);
+            projectile.velocity = direction * bulletSpeed;
+
+            projectile.IgnoreEntity(entity);
+
+            // @Hardcoded
+            projectile.GetComponentInChildren<Shape>().SetColor(Color.Lerp(Color.red, Color.white, 0.5f));
+        }
+        yield return null;
+    }
+}
+
+public class LaserPattern {
+    public Entity entity;
+    public float warningDuration;
+    public float laserDuration;
+    public int count = 4;
+
+    public LaserPattern(Entity entity, float warningDuration, float laserDuration) {
+        this.entity = entity;
+        this.warningDuration = warningDuration;
+        this.laserDuration = laserDuration;
+    }
+
+    public IEnumerator Play() {
+        List<Shape> shapes = new List<Shape>();
+
+        GameObject anchor = new GameObject("Laser Anchor");
+        anchor.transform.SetParent(entity.transform, false);
+
+        for (int i = 0; i < count; i++) {
+            Shape shape = Shape.Create();
+            shape.SetType(ShapeType.BOX);
+            shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
+
+            shape.transform.SetParent(anchor.transform, false);
+
+            const float laserLength = 20f;
+            const float laserThickness = 0.7f;
+
+            float angle = (float)i / count * Mathf.PI * 2;
+
+            Vector2 dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+            shape.transform.localPosition = new Vector3(dir.x, dir.y) * laserLength * 0.5f;
+            shape.transform.localEulerAngles = new Vector3(0, 0, angle * Mathf.Rad2Deg + 90);
+            shape.transform.localScale = new Vector3(laserThickness, laserLength, 1);
+
+            shapes.Add(shape);
+        }
+
+        yield return new WaitForSeconds(warningDuration);
+
+        foreach (Shape shape in shapes) {
+            shape.SetColor(Color.red);
+            shape.SetToEnemy();
+        }
+
+        yield return new WaitForSeconds(laserDuration);
+
+        GameObject.DestroyImmediate(anchor);
     }
 }

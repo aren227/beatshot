@@ -6,6 +6,8 @@ public struct ShapeProperties {
     public ShapeType type;
     public Color color;
 
+    public Vector3 scale;
+
     public float blinkTime;
     public const float blinkPeriod = 0.05f;
 
@@ -42,6 +44,7 @@ public class Shape : MonoBehaviour
     void Awake() {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
+        props.scale = Vector3.one;
         props.targetScale = 1;
 
         SetColor(spriteRenderer.color);
@@ -62,6 +65,19 @@ public class Shape : MonoBehaviour
 
         if (type == ShapeType.CIRCLE) spriteRenderer.sprite = PrefabRegistry.Instance.circleSprite;
         else spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;
+    }
+
+    public void SetRadius(float radius) {
+        props.scale = Vector3.one * radius * 2;
+    }
+
+    public float GetRadius() {
+        // @Todo: Maybe Max(x, y) like Unity does?
+        return props.scale.x / 2;
+    }
+
+    public void SetScale(Vector2 scale) {
+        props.scale = new Vector3(scale.x, scale.y, 1);
     }
 
     public void Blink(float time) {
@@ -126,19 +142,30 @@ public class Shape : MonoBehaviour
         if (props.faded) col.a = 0;
 
         if (props.scaleTime > 0) {
-            spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(props.targetScale, 1, props.scaleTime / props.scaleDuration);
+            spriteRenderer.transform.localScale = props.scale * Mathf.Lerp(props.targetScale, 1, props.scaleTime / props.scaleDuration);
 
             props.scaleTime -= Mathf.Min(dt, props.scaleTime);
         }
         else {
-            spriteRenderer.transform.localScale = Vector3.one * props.targetScale;
+            spriteRenderer.transform.localScale = props.scale * props.targetScale;
         }
 
         spriteRenderer.color = col;
     }
 
+    public void SetToEnemy() {
+        gameObject.layer = LayerMask.NameToLayer("Enemy");
+
+        if (props.type == ShapeType.CIRCLE) {
+            gameObject.AddComponent<CircleCollider2D>().radius = 0.5f;
+        }
+        else {
+            gameObject.AddComponent<BoxCollider2D>();
+        }
+    }
+
     public static Shape Create() {
-        Shape shape = Instantiate(PrefabRegistry.Instance.shape).GetComponent<Shape>();
+        Shape shape = Instantiate(PrefabRegistry.Instance.shape).GetComponentInChildren<Shape>();
         return shape;
     }
 }

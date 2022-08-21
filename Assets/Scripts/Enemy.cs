@@ -10,7 +10,7 @@ public class Enemy : MonoBehaviour
 
     void Awake() {
         entity = GetComponent<Entity>();
-        shape = GetComponent<Shape>();
+        shape = GetComponentInChildren<Shape>();
 
         Health health = GetComponent<Health>();
 
@@ -28,5 +28,6 @@ public class Enemy : MonoBehaviour
 
     void Start() {
         shape.SetType(ShapeType.BOX);
+        shape.SetScale(new Vector2(3, 3));
     }
 }
