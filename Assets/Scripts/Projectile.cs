@@ -35,14 +35,17 @@ public class Projectile : MonoBehaviour
 
         // @Todo: Use layers to speed it up.
         for (int i = 0; i < count; i++) {
-            // If collided with something, destory anyway.
-            destroy = true;
-
             Entity entity = hits[i].collider.GetComponent<Entity>();
             if (!entity) entity = hits[i].collider.transform.parent?.GetComponent<Entity>();
-            if (!entity) continue;
+            if (!entity) {
+                // If collided with something, destory anyway.
+                destroy = true;
+                continue;
+            }
 
             if (collidedEntities.Contains(entity.id)) continue;
+
+            destroy = true;
 
             // Collide only once.
             collidedEntities.Add(entity.id);
