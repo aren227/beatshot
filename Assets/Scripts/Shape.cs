@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct ShapeProperties {
+    public ShapeType type;
     public Color color;
 
     public float blinkTime;
@@ -25,14 +26,23 @@ public struct ShapeProperties {
     public float scaleDuration;
 }
 
+public enum ShapeType {
+    CIRCLE,
+    BOX,
+}
+
 public class Shape : MonoBehaviour
 {
     public ShapeProperties props;
 
     public SpriteRenderer spriteRenderer;
 
+    public bool ignoreRecorder = false;
+
     void Awake() {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        props.targetScale = 1;
 
         SetColor(spriteRenderer.color);
 
@@ -45,6 +55,13 @@ public class Shape : MonoBehaviour
 
     public void SetColor(Color color) {
         props.color = color;
+    }
+
+    public void SetType(ShapeType type) {
+        props.type = type;
+
+        if (type == ShapeType.CIRCLE) spriteRenderer.sprite = PrefabRegistry.Instance.circleSprite;
+        else spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;
     }
 
     public void Blink(float time) {
@@ -112,6 +129,9 @@ public class Shape : MonoBehaviour
             spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(props.targetScale, 1, props.scaleTime / props.scaleDuration);
 
             props.scaleTime -= Mathf.Min(dt, props.scaleTime);
+        }
+        else {
+            spriteRenderer.transform.localScale = Vector3.one * props.targetScale;
         }
 
         spriteRenderer.color = col;

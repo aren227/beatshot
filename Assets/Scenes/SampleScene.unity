@@ -157,6 +157,8 @@ MonoBehaviour:
   enemy: {fileID: 7586866554804613469, guid: 0f9b887d4e2f45644a85500fa0aec8ae, type: 3}
   projectile: {fileID: 9222497906911686762, guid: 8a8d60befd934d34db1633bf2b6be1d5, type: 3}
   shape: {fileID: 3997094830818932380, guid: df7ce2d13fdcaae4292bef275668f5f0, type: 3}
+  circleSprite: {fileID: 21300000, guid: e5ad1b9a78633ac47bc65a802536dbfc, type: 3}
+  boxSprite: {fileID: 21300000, guid: 15d605d46689ed2429ad1f563347b438, type: 3}
 --- !u!4 &51542214
 Transform:
   m_ObjectHideFlags: 0
@@ -184,6 +186,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73c54b03d6b9f7b4caadbdb101dfad0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentPlayer: {fileID: 0}
+  shapes: []
+  time: 0
+  isPlaying: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,7 +226,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 0}
+  m_BackGroundColor: {r: 0.03, g: 0.03, b: 0.03, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

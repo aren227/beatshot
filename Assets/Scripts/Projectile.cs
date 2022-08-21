@@ -45,11 +45,23 @@ public class Projectile : MonoBehaviour
             Health health = hits[i].collider.GetComponent<Health>();
             if (health) {
                 health.Damage(1);
+                destroy = true;
             }
         }
 
         if (destroy) {
-            Manager.Instance.RemoveProjectile(this);
+            // Particle
+            Particle particle = Particle.Create();
+
+            particle.transform.position = transform.position;
+
+            particle.amount = 16;
+            particle.color = GetComponent<Shape>().props.color;
+            particle.duration = 0.3f;
+            particle.scale = 0.2f;
+            particle.speed = 3f;
+
+            DestroyImmediate(gameObject);
         }
         else {
             transform.position = nextPos;

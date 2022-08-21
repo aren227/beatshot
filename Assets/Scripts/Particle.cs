@@ -26,6 +26,9 @@ public class Particle : MonoBehaviour
             shapes[i].transform.localScale = Vector3.one * scale;
             shapes[i].Scale(0f, duration);
 
+            // Particles are not recorded.
+            shapes[i].ignoreRecorder = true;
+
             velocities[i] = Random.insideUnitCircle.normalized * speed * Random.Range(0.5f, 1f);
         }
     }

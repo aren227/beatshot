@@ -19,4 +19,7 @@ public class PrefabRegistry : MonoBehaviour
     public GameObject enemy;
     public GameObject projectile;
     public GameObject shape;
+
+    public Sprite circleSprite;
+    public Sprite boxSprite;
 }

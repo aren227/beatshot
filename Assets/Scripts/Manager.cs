@@ -16,6 +16,8 @@ public class Manager : MonoBehaviour
 
     static Manager _instance;
 
+    public Player currentPlayer;
+
     List<Player> players = new List<Player>();
     List<Projectile> projectiles = new List<Projectile>();
     public List<Shape> shapes = new List<Shape>();
@@ -25,6 +27,10 @@ public class Manager : MonoBehaviour
 
     ShapeRecorder shapeRecorder;
     const float shapeRecordInterval = 0.05f;
+
+    const int maxClonedPlayers = 2;
+    List<PlayerRecorder> playerRecorders = new List<PlayerRecorder>();
+    PlayerRecorder currentPlayerRecorder;
 
     public float time = 0;
 
@@ -38,12 +44,37 @@ public class Manager : MonoBehaviour
         Enemy enemy = AddEnemy();
         enemy.transform.position = Vector3.zero;
 
-        Player player = AddPlayer();
-        player.transform.position = new Vector2(0, -3);
+        currentPlayer = AddPlayer();
+
+        // @Todo: Find valid positions.
+        currentPlayer.transform.position = Random.insideUnitCircle.normalized * 3;
 
         shapeRecorder = new ShapeRecorder();
 
         isPlaying = true;
+
+        currentPlayerRecorder = new PlayerRecorder();
+        currentPlayerRecorder.playerId = currentPlayer.entity.id;
+
+        Vector3 scale = currentPlayer.transform.localScale;
+        currentPlayer.transform.localScale = Vector3.zero;
+        currentPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
+
+        foreach (PlayerRecorder playerRecorder in playerRecorders) {
+            playerRecorder.Reset();
+
+            Player clonedPlayer = AddPlayer();
+            clonedPlayer.entity.id = playerRecorder.playerId;
+            clonedPlayer.playback = playerRecorder;
+
+            clonedPlayer.transform.position = playerRecorder.snapshots[0].position;
+
+            clonedPlayer.shape.SetColor(Color.gray);
+
+            scale = clonedPlayer.transform.localScale;
+            clonedPlayer.transform.localScale = Vector3.zero;
+            clonedPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutQuad).SetUpdate(true);
+        }
     }
 
     public Player AddPlayer() {
@@ -73,10 +104,6 @@ public class Manager : MonoBehaviour
         return projectile;
     }
 
-    public void RemoveProjectile(Projectile projectile) {
-        DestroyImmediate(projectile.gameObject);
-    }
-
     void Update() {
         if (isPlaying) {
             foreach (Player player in players) {
@@ -103,7 +130,10 @@ public class Manager : MonoBehaviour
 
             if (time - shapeRecorder.lastRecordTime > shapeRecordInterval) {
                 shapeRecorder.TakeSnapshot();
-                Debug.Log("Take snapshot at" + time);
+            }
+
+            if (currentPlayer && currentPlayerRecorder != null) {
+                currentPlayerRecorder.TakeSnapshot(currentPlayer);
             }
         }
     }
@@ -132,6 +162,13 @@ public class Manager : MonoBehaviour
 
             Time.timeScale = 1;
 
+            // Flush player recorder.
+            if (playerRecorders.Count >= maxClonedPlayers) {
+                playerRecorders.RemoveAt(0);
+            }
+            playerRecorders.Add(currentPlayerRecorder);
+            currentPlayerRecorder = null;
+
             DOTween.To(() => time, x => {
                 time = x;
 
@@ -152,7 +189,7 @@ public class Manager : MonoBehaviour
 
                 BeginGame();
 
-                DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, 0.5f).SetEase(Ease.InQuad).SetUpdate(true);
+                DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, 1f).SetEase(Ease.InQuad).SetUpdate(true);
             });
         });
     }

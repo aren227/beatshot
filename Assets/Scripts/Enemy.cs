@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour
 
         Health health = GetComponent<Health>();
 
-        health.health = 100;
+        health.health = 1000;
         health.onDamaged.AddListener(health => {
             if (health <= 0) {
                 DestroyImmediate(gameObject);
@@ -24,5 +24,9 @@ public class Enemy : MonoBehaviour
                 shape.Tint(0.2f, Color.white);
             }
         });
+    }
+
+    void Start() {
+        shape.SetType(ShapeType.BOX);
     }
 }
