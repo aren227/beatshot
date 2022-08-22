@@ -90,6 +90,10 @@ public class Manager : MonoBehaviour
             clonedPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutQuad).SetUpdate(true);
         }
 
+        foreach (Player player in players) {
+            player.MakeInvincible(4);
+        }
+
         targeting.Reset();
 
         bossPatternCoroutine = StartCoroutine(DoBossPattern());

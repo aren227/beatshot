@@ -13,7 +13,6 @@ public class Player : MonoBehaviour
     public Health health;
     public Shape shape;
 
-    float lastDamage;
     const float ignoreDamageTime = 1f;
 
     static Collider2D[] hitColliders = new Collider2D[256];
@@ -36,9 +35,16 @@ public class Player : MonoBehaviour
         shape.SetRadius(0.25f);
     }
 
+    public void MakeInvincible(float time) {
+        shape.Blink(time);
+        health.ignoreDamageUntil = Time.time + time;
+    }
+
     public void TakeDamage(int health) {
         shape.Blink(ignoreDamageTime);
         shape.Shake(0.3f, 0.5f);
+
+        this.health.ignoreDamageUntil = Time.time + ignoreDamageTime;
 
         Shape drop = Shape.Create();
         drop.transform.position = transform.position;
@@ -129,21 +135,18 @@ public class Player : MonoBehaviour
             }
 
             // Damage
-            if (Time.time - lastDamage > ignoreDamageTime) {
-                int count = Physics2D.OverlapCircleNonAlloc(transform.position, shape.GetRadius(), hitColliders, LayerMask.GetMask("Enemy"));
+            int count = Physics2D.OverlapCircleNonAlloc(transform.position, shape.GetRadius(), hitColliders, LayerMask.GetMask("Enemy"));
 
-                // for (int i = 0; i < count; i++) {
-                //     if (hitColliders[i].GetComponent<Enemy>()) {
-                //         health.Damage(1);
-                //         lastDamage = Time.time;
-                //         break;
-                //     }
-                // }
+            // for (int i = 0; i < count; i++) {
+            //     if (hitColliders[i].GetComponent<Enemy>()) {
+            //         health.Damage(1);
+            //         lastDamage = Time.time;
+            //         break;
+            //     }
+            // }
 
-                if (count > 0) {
-                    health.Damage(1);
-                    lastDamage = Time.time;
-                }
+            if (count > 0) {
+                health.Damage(1);
             }
         }
         // Play recorded inputs.
