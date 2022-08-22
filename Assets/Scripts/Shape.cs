@@ -27,6 +27,10 @@ public struct ShapeProperties {
     public float targetScale;
     public float scaleTime;
     public float scaleDuration;
+
+    public bool hasShadow;
+    public Vector2 shadowOffset;
+    public Color shadowColor;
 }
 
 public enum ShapeType {
@@ -44,13 +48,15 @@ public class Shape : MonoBehaviour
 
     public bool ignoreUpdate = false;
 
-    void Awake() {
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+    public SpriteRenderer shadowSpriteRenderer;
 
+    void Awake() {
         props.scale = Vector3.one;
         props.targetScale = 1;
 
         SetColor(spriteRenderer.color);
+
+        shadowSpriteRenderer.enabled = false;
 
         Manager.Instance.shapes.Add(this);
     }
@@ -71,6 +77,8 @@ public class Shape : MonoBehaviour
             spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;
             // spriteRenderer.drawMode = SpriteDrawMode.Sliced;
         }
+
+        shadowSpriteRenderer.sprite = spriteRenderer.sprite;
     }
 
     public void SetRadius(float radius) {
@@ -84,6 +92,18 @@ public class Shape : MonoBehaviour
 
     public void SetScale(Vector2 scale) {
         props.scale = new Vector3(scale.x, scale.y, 1);
+    }
+
+    public void SetShadow(Vector2 offset, Color color) {
+        shadowSpriteRenderer.enabled = true;
+        shadowSpriteRenderer.sprite = spriteRenderer.sprite;
+        shadowSpriteRenderer.color = color;
+
+        // @Hardcoded: Very low order.
+        shadowSpriteRenderer.sortingOrder = -10;
+
+        props.shadowOffset = offset;
+        props.shadowColor = color;
     }
 
     public void Blink(float time) {
@@ -172,6 +192,13 @@ public class Shape : MonoBehaviour
         }
 
         spriteRenderer.color = col;
+    }
+
+    void LateUpdate() {
+        if (shadowSpriteRenderer.enabled) {
+            shadowSpriteRenderer.transform.localScale = spriteRenderer.transform.localScale;
+            shadowSpriteRenderer.transform.position = (Vector2)spriteRenderer.transform.position + props.shadowOffset;
+        }
     }
 
     public void SetToEnemy() {

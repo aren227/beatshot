@@ -9,7 +9,7 @@ public class Projectile : MonoBehaviour
 
     List<int> collidedEntities = new List<int>();
 
-    public Shape shape;
+    public Shape shape { get; private set; }
 
     static RaycastHit2D[] hits = new RaycastHit2D[256];
 
@@ -18,6 +18,7 @@ public class Projectile : MonoBehaviour
     }
 
     void Start() {
+        shape.SetShadow(new Vector2(1, -1) * 0.04f, PrefabRegistry.Instance.shadowColor);
     }
 
     public void IgnoreEntity(Entity entity) {

@@ -5,9 +5,9 @@ using DG.Tweening;
 
 public class Enemy : MonoBehaviour
 {
-    public Entity entity;
-    public Health health;
-    public Shape shape;
+    public Entity entity { get; private set; }
+    public Health health { get; private set; }
+    public Shape shape { get; private set; }
     // public Shape innerShape;
 
     public int maxHealth;
@@ -16,8 +16,8 @@ public class Enemy : MonoBehaviour
 
     void Awake() {
         entity = GetComponent<Entity>();
-
         health = GetComponent<Health>();
+        shape = GetComponentInChildren<Shape>();
 
         maxHealth = 1000;
         health.health = maxHealth;
@@ -66,6 +66,8 @@ public class Enemy : MonoBehaviour
 
         shape.SetType(ShapeType.BOX);
         // innerShape.SetType(ShapeType.BOX);
+
+        shape.SetShadow(new Vector2(1, -1) * 0.07f, PrefabRegistry.Instance.shadowColor);
     }
 
     void Update() {

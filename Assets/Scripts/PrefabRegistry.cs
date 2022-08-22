@@ -22,4 +22,7 @@ public class PrefabRegistry : MonoBehaviour
 
     public Sprite circleSprite;
     public Sprite boxSprite;
+
+    // @Temp
+    public Color shadowColor;
 }

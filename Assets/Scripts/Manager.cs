@@ -252,7 +252,7 @@ public class Manager : MonoBehaviour
                 if (beamTime > totalBeats && !invincibleFlag) {
                     Debug.Log("Music ends.");
 
-                    Manager.Instance.RewindGame();
+                    Manager.Instance.RewindGame(musicEnded: true);
                 }
             }
         }
@@ -591,9 +591,13 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void RewindGame() {
+    public void RewindGame(bool musicEnded) {
         // StartCoroutine(RewindGameCoroutine());
         invincibleFlag = true;
+
+        Camera cam = Camera.main;
+
+        DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, 5 * 1.1f, 0.7f).SetEase(Ease.OutCubic).SetUpdate(true);
 
         DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutQuad).SetUpdate(true).OnComplete(() => {
 
@@ -657,6 +661,8 @@ public class Manager : MonoBehaviour
                     DestroyImmediate(shape.gameObject);
                 }
                 shapes.Clear();
+
+                DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, 5, 0.7f).SetEase(Ease.OutCubic).SetUpdate(true);
 
                 BeginGame();
             });

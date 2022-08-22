@@ -161,6 +161,7 @@ MonoBehaviour:
   shape: {fileID: 3997094830818932380, guid: df7ce2d13fdcaae4292bef275668f5f0, type: 3}
   circleSprite: {fileID: 21300000, guid: 92eebd9a5e04b154db5638e6dc510c6a, type: 3}
   boxSprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
+  shadowColor: {r: 0.15092592, g: 0.17383467, b: 0.32599998, a: 1}
 --- !u!4 &51542214
 Transform:
   m_ObjectHideFlags: 0
@@ -839,7 +840,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 150
   m_Sprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
   m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_FlipX: 0
@@ -1409,7 +1410,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 150
   m_Sprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
   m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_FlipX: 0
@@ -1604,7 +1605,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 150
   m_Sprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
   m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_FlipX: 0
@@ -1750,7 +1751,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 150
   m_Sprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
   m_Color: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_FlipX: 0

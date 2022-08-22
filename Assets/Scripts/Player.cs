@@ -9,9 +9,9 @@ public class Player : MonoBehaviour
 
     float lastShoot;
 
-    public Entity entity;
-    public Health health;
-    public Shape shape;
+    public Entity entity { get; private set; }
+    public Health health { get; private set; }
+    public Shape shape { get; private set; }
 
     const float ignoreDamageTime = 1f;
 
@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
 
     void Start() {
         shape.SetRadius(0.25f);
+        shape.SetShadow(new Vector2(1, -1) * 0.04f, PrefabRegistry.Instance.shadowColor);
     }
 
     public void MakeInvincible(float time) {
@@ -70,7 +71,7 @@ public class Player : MonoBehaviour
             DestroyImmediate(gameObject);
 
             if (this == Manager.Instance.currentPlayer) {
-                Manager.Instance.RewindGame();
+                Manager.Instance.RewindGame(musicEnded: false);
             }
         }
     }
