@@ -37,6 +37,7 @@ public class Manager : MonoBehaviour
     PlayerRecorder currentPlayerRecorder;
 
     public float time = 0;
+    public float deltaTime = 0;
 
     public GameState state { get; private set; } = GameState.READY;
 
@@ -58,12 +59,21 @@ public class Manager : MonoBehaviour
     public GlobalData globalData;
 
     public SpriteRenderer playerBelowLayer;
-    float playerBelowLayerOpacity;
+    public float playerBelowLayerOpacity;
+
+    public SpriteRenderer upmostLayer;
+    public float upmostLayerOpacity;
+
+    public bool paused = false;
 
     void Start() {
         playerBelowLayer.enabled = true;
         playerBelowLayer.color = Color.black;
         playerBelowLayerOpacity = 1;
+
+        upmostLayer.enabled = true;
+        upmostLayer.color = Color.black;
+        upmostLayerOpacity = 0;
 
         StartCoroutine(InitCoroutine());
     }
@@ -170,62 +180,74 @@ public class Manager : MonoBehaviour
     }
 
     void Update() {
+        deltaTime = 0;
+
         if (state == GameState.PLAYING) {
-            foreach (Player player in players) {
-                if (!player) continue;
-                player.DoNextFrame(Time.deltaTime);
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                SetPause(!paused);
             }
 
-            foreach (Projectile projectile in projectiles) {
-                if (!projectile) continue;
-                projectile.DoNextFrame(Time.deltaTime);
-            }
+            if (!paused) {
+                float dt = Time.deltaTime;
+                deltaTime = dt;
 
-            foreach (Shape shape in shapes) {
-                if (!shape) continue;
-                shape.DoNextFrame(Time.deltaTime);
-            }
-
-            foreach (Particle particle in particles) {
-                if (!particle) continue;
-                particle.DoNextFrame(Time.deltaTime);
-            }
-
-            // Remove invalid pointers.
-            players.RemoveAll(x => !x);
-            projectiles.RemoveAll(x => !x);
-            shapes.RemoveAll(x => !x);
-            particles.RemoveAll(x => !x);
-
-            // Boss beats
-            {
-                int prevBeat = Mathf.FloorToInt(time * bps);
-                int currBeat = Mathf.FloorToInt((time + Time.deltaTime) * bps);
-                if (prevBeat < currBeat) {
-                    boss.shape.props.targetScale = 1.05f;
-                    boss.shape.Scale(1, spb * 0.5f);
+                foreach (Player player in players) {
+                    if (!player) continue;
+                    player.DoNextFrame(dt);
                 }
-            }
 
-            time += Time.deltaTime;
+                foreach (Projectile projectile in projectiles) {
+                    if (!projectile) continue;
+                    projectile.DoNextFrame(dt);
+                }
 
-            if (time - shapeRecorder.lastRecordTime > shapeRecordInterval) {
-                shapeRecorder.TakeSnapshot();
-            }
+                foreach (Shape shape in shapes) {
+                    if (!shape) continue;
+                    shape.DoNextFrame(dt);
+                }
 
-            if (currentPlayer && currentPlayerRecorder != null) {
-                currentPlayerRecorder.TakeSnapshot(currentPlayer);
-            }
+                foreach (Particle particle in particles) {
+                    if (!particle) continue;
+                    particle.DoNextFrame(dt);
+                }
 
-            // @Todo: Usage of invincibleFlag is pretty strange.
-            if (beamTime > totalBeats && !invincibleFlag) {
-                Debug.Log("Music ends.");
+                // Remove invalid pointers.
+                players.RemoveAll(x => !x);
+                projectiles.RemoveAll(x => !x);
+                shapes.RemoveAll(x => !x);
+                particles.RemoveAll(x => !x);
 
-                Manager.Instance.RewindGame();
+                // Boss beats
+                {
+                    int prevBeat = Mathf.FloorToInt(time * bps);
+                    int currBeat = Mathf.FloorToInt((time + dt) * bps);
+                    if (prevBeat < currBeat) {
+                        boss.shape.props.targetScale = 1.05f;
+                        boss.shape.Scale(1, spb * 0.5f);
+                    }
+                }
+
+                time += dt;
+
+                if (time - shapeRecorder.lastRecordTime > shapeRecordInterval) {
+                    shapeRecorder.TakeSnapshot();
+                }
+
+                if (currentPlayer && currentPlayerRecorder != null) {
+                    currentPlayerRecorder.TakeSnapshot(currentPlayer);
+                }
+
+                // @Todo: Usage of invincibleFlag is pretty strange.
+                if (beamTime > totalBeats && !invincibleFlag) {
+                    Debug.Log("Music ends.");
+
+                    Manager.Instance.RewindGame();
+                }
             }
         }
 
         playerBelowLayer.color = new Color(0, 0, 0, playerBelowLayerOpacity);
+        upmostLayer.color = new Color(0, 0, 0, upmostLayerOpacity);
     }
 
     void PlayPattern(Pattern pattern) {
@@ -543,6 +565,21 @@ public class Manager : MonoBehaviour
         patternCoroutines.Clear();
     }
 
+    public void SetPause(bool pause) {
+        if (paused == pause) return;
+
+        paused = pause;
+
+        if (paused) {
+            Time.timeScale = 0;
+            IngameUi.Instance.ShowPauseScreen();
+        }
+        else {
+            Time.timeScale = 1;
+            IngameUi.Instance.HidePauseScreen();
+        }
+    }
+
     public void RewindGame() {
         // StartCoroutine(RewindGameCoroutine());
         invincibleFlag = true;
@@ -595,6 +632,7 @@ public class Manager : MonoBehaviour
             }, 0, rewindDuration).SetEase(Ease.InOutQuad).OnComplete(() => {
 
                 time = 0;
+                deltaTime = 0;
 
                 Time.timeScale = 0;
 

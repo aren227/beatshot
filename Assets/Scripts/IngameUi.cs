@@ -17,13 +17,23 @@ public class IngameUi : MonoBehaviour
 
     static IngameUi _instance;
 
-    public Transform anchor;
+    public Transform titleAnchor;
+    public Transform pauseAnchor;
+
     public Text title, artist;
+
+    public Button resumeButton;
+    public Button backToTitleButton;
 
     Canvas canvas;
 
     void Awake() {
         canvas = GetComponent<Canvas>();
+
+        titleAnchor.gameObject.SetActive(true);
+        pauseAnchor.gameObject.SetActive(true);
+
+        pauseAnchor.position = GetActualPos(Vector2.up);
     }
 
     // @Copypasta: From Title.cs.
@@ -35,25 +45,17 @@ public class IngameUi : MonoBehaviour
         return pos;
     }
 
-    public void AnimateAnchor(Transform transform, Vector2 from, Vector2 to) {
-        from = GetActualPos(from);
-        to = GetActualPos(to);
-
-        transform.position = from;
-        transform.DOMove(to, 0.3f).SetEase(Ease.OutCubic);
-    }
-
     public void DoAnimation() {
         Vector2 a = GetActualPos(Vector2.right);
         Vector2 b = GetActualPos(new Vector2(0.02f, 0f));
         Vector2 c = GetActualPos(new Vector2(-0.02f, 0f));
         Vector2 d = GetActualPos(Vector2.left);
 
-        anchor.position = a;
+        titleAnchor.position = a;
 
-        anchor.DOMove(b, 0.5f).SetEase(Ease.OutCubic).OnComplete(() => {
-            anchor.DOMove(c, 2f).SetEase(Ease.Linear).OnComplete(() => {
-                anchor.DOMove(d, 0.5f).SetEase(Ease.InCubic);
+        titleAnchor.DOMove(b, 0.5f).SetEase(Ease.OutCubic).OnComplete(() => {
+            titleAnchor.DOMove(c, 2f).SetEase(Ease.Linear).OnComplete(() => {
+                titleAnchor.DOMove(d, 0.5f).SetEase(Ease.InCubic);
             });
         });
     }
@@ -61,5 +63,21 @@ public class IngameUi : MonoBehaviour
     public void SetText(string title, string artist) {
         this.title.text = title;
         this.artist.text = artist;
+    }
+
+    public void ShowPauseScreen() {
+        DOTween.Kill("Pause");
+        DOTween.Kill("Upmost");
+
+        pauseAnchor.DOMove(GetActualPos(Vector2.zero), 0.2f).SetEase(Ease.OutCubic).SetId("Pause").SetUpdate(true);
+        DOTween.To(() => Manager.Instance.upmostLayerOpacity, x => Manager.Instance.upmostLayerOpacity = x, 0.7f, 0.2f).SetEase(Ease.OutCubic).SetId("Upmost").SetUpdate(true);
+    }
+
+    public void HidePauseScreen() {
+        DOTween.Kill("Pause");
+        DOTween.Kill("Upmost");
+
+        pauseAnchor.DOMove(GetActualPos(Vector2.up), 0.2f).SetEase(Ease.OutCubic).SetId("Pause").SetUpdate(true);
+        DOTween.To(() => Manager.Instance.upmostLayerOpacity, x => Manager.Instance.upmostLayerOpacity = x, 0f, 0.2f).SetEase(Ease.OutCubic).SetId("Upmost").SetUpdate(true);
     }
 }

@@ -349,7 +349,9 @@ public class FollowPattern : Pattern {
             Vector2 targetPos = entity.transform.position;
             if (target) targetPos = target.transform.position;
 
-            entity.transform.position = Vector2.SmoothDamp(entity.transform.position, targetPos, ref positionVel, smoothTime, maxSpeed);
+            entity.transform.position = Vector2.SmoothDamp(
+                entity.transform.position, targetPos, ref positionVel, smoothTime, maxSpeed, Manager.Instance.deltaTime
+            );
             entity.transform.eulerAngles = new Vector3(0, 0, t * rotation);
 
             yield return null;
