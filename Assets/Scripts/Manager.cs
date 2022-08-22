@@ -41,6 +41,8 @@ public class Manager : MonoBehaviour
     public GameState state { get; private set; } = GameState.PLAYING;
 
     float bpm = 100f;
+    float totalBeats = 32;
+
     float bps => bpm / 60;
     float spb => 1f / bps;
     float beamTime => time * bps;
@@ -52,6 +54,8 @@ public class Manager : MonoBehaviour
     Targeting targeting = new Targeting();
 
     public bool invincibleFlag { get; private set; } = false;
+
+    public GlobalData globalData;
 
     void Start() {
         BeginGame();
@@ -69,6 +73,8 @@ public class Manager : MonoBehaviour
         shapeRecorder = new ShapeRecorder();
 
         state = GameState.PLAYING;
+
+        invincibleFlag = false;
 
         currentPlayerRecorder = new PlayerRecorder();
         currentPlayerRecorder.playerId = currentPlayer.entity.id;
@@ -182,6 +188,13 @@ public class Manager : MonoBehaviour
 
             if (currentPlayer && currentPlayerRecorder != null) {
                 currentPlayerRecorder.TakeSnapshot(currentPlayer);
+            }
+
+            // @Todo: Usage of invincibleFlag is pretty strange.
+            if (beamTime > totalBeats && !invincibleFlag) {
+                Debug.Log("Music ends.");
+
+                Manager.Instance.RewindGame();
             }
         }
     }
@@ -550,6 +563,8 @@ public class Manager : MonoBehaviour
                 shapeRecorder.Show(time);
             }, 0, rewindDuration).SetEase(Ease.InOutQuad).OnComplete(() => {
 
+                time = 0;
+
                 Time.timeScale = 0;
 
                 foreach (Shape shape in shapes) {
@@ -622,7 +637,7 @@ public class Manager : MonoBehaviour
         {
             particle = Particle.Create();
 
-            particle.transform.position = transform.position;
+            particle.transform.position = boss.transform.position;
 
             particle.amount = 64;
             particle.color = originalColor;
