@@ -149,7 +149,8 @@ public class Manager : MonoBehaviour
 
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
 
-        Music.Instance.audioSource.Play();
+        Music.Instance.audioSource.time = 0;
+        if (!Music.Instance.audioSource.isPlaying) Music.Instance.audioSource.Play();
     }
 
     public Player AddPlayer() {
@@ -188,6 +189,8 @@ public class Manager : MonoBehaviour
         deltaTime = 0;
 
         if (state == GameState.PLAYING) {
+            Music.Instance.audioSource.pitch = Time.timeScale;
+
             if (Input.GetKeyDown(KeyCode.Escape)) {
                 SetPause(!paused);
             }
@@ -232,7 +235,7 @@ public class Manager : MonoBehaviour
                     }
                 }
 
-                // Debug.Log(time + " vs " + Music.Instance.audioSource.time);
+                Debug.Log(time + " vs " + Music.Instance.audioSource.time);
 
                 time += dt;
 
@@ -608,7 +611,7 @@ public class Manager : MonoBehaviour
             projectiles.Clear();
             shapes.Clear();
 
-            float rewindDuration = time * 0.2f;
+            float rewindDuration = Mathf.Log(time + 1);
 
             state = GameState.REWINDING;
 
@@ -623,12 +626,18 @@ public class Manager : MonoBehaviour
             playerRecorders.Add(currentPlayerRecorder);
             currentPlayerRecorder = null;
 
-            Music.Instance.audioSource.Stop();
+            // Music.Instance.audioSource.Stop();
 
             DOTween.To(() => playerBelowLayerOpacity, x => playerBelowLayerOpacity = x, 1, rewindDuration).SetEase(Ease.InCubic);
 
+            float prevTime = time;
+
             DOTween.To(() => time, x => {
                 time = x;
+
+                Music.Instance.audioSource.pitch = (time - prevTime) / Time.deltaTime;
+
+                prevTime = time;
 
                 foreach (Shape shape in shapes) {
                     DestroyImmediate(shape.gameObject);

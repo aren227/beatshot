@@ -22,6 +22,6 @@ public class Music : MonoBehaviour
     }
 
     void LateUpdate() {
-        audioSource.pitch = Time.timeScale;
+        // audioSource.pitch = Time.timeScale;
     }
 }
