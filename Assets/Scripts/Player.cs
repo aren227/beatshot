@@ -133,12 +133,24 @@ public class Player : MonoBehaviour
             // Shoot
             shootFlag = false;
             if (Input.GetMouseButton(0)) {
-                const float shootDelay = 0.1f;
-                if (Time.time - lastShoot >= shootDelay) {
+                float shootPeriod = 0.25f;
+                float offset = -0.1f;
+                float currentBeat = Manager.Instance.beamTime + offset;
+                float nextBeat = Manager.Instance.beamTime + Manager.Instance.bps * Manager.Instance.deltaTime + offset;
+
+                bool canShoot = false;
+
+                if (Mathf.FloorToInt(currentBeat / shootPeriod) < Mathf.FloorToInt(nextBeat / shootPeriod)) {
+                    canShoot = true;
+                }
+
+                if (canShoot) {
                     Vector2 worldMousePos = Camera.main.ViewportToWorldPoint(Input.mousePosition / new Vector2(Screen.width, Screen.height));
 
                     Vector2 lookDir = (worldMousePos - (Vector2)transform.position).normalized;
                     Shoot(lookDir);
+
+                    SFX.Instance.Play("shoot");
                 }
             }
 

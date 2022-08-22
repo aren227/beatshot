@@ -19,7 +19,7 @@ public class Enemy : MonoBehaviour
 
         health = GetComponent<Health>();
 
-        maxHealth = 10;
+        maxHealth = 1000;
         health.health = maxHealth;
 
         scale = 3;
@@ -54,6 +54,8 @@ public class Enemy : MonoBehaviour
             else {
                 shape.Shake(0.3f, 0.15f);
                 shape.Tint(0.2f, Color.white);
+
+                SFX.Instance.Play("hit");
             }
         });
     }

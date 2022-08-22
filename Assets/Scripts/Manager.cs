@@ -42,11 +42,11 @@ public class Manager : MonoBehaviour
     public GameState state { get; private set; } = GameState.READY;
 
     float bpm = 100f;
-    float totalBeats = 32;
+    float totalBeats = 48 + 32 + 32;
 
-    float bps => bpm / 60;
-    float spb => 1f / bps;
-    float beamTime => time * bps;
+    public float bps => bpm / 60;
+    public float spb => 1f / bps;
+    public float beamTime => time * bps;
 
     Coroutine bossPatternCoroutine;
 
@@ -231,6 +231,8 @@ public class Manager : MonoBehaviour
                         boss.shape.Scale(1, spb * 0.5f);
                     }
                 }
+
+                // Debug.Log(time + " vs " + Music.Instance.audioSource.time);
 
                 time += dt;
 
