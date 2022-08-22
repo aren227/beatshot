@@ -149,6 +149,7 @@ public class Manager : MonoBehaviour
 
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
 
+        Music.Instance.audioSource.loop = true;
         Music.Instance.audioSource.time = 0;
         if (!Music.Instance.audioSource.isPlaying) Music.Instance.audioSource.Play();
     }
@@ -235,7 +236,7 @@ public class Manager : MonoBehaviour
                     }
                 }
 
-                Debug.Log(time + " vs " + Music.Instance.audioSource.time);
+                // Debug.Log(time + " vs " + Music.Instance.audioSource.time);
 
                 time += dt;
 
@@ -358,7 +359,7 @@ public class Manager : MonoBehaviour
         }
 
         // #7
-        // 최대 두명 타겟팅해서 따라다니면서 발사
+        // 최대 두명 타겟팅해서 따라다니기 (발사까지 하면 난이도가 너무 높아짐)
         // 16 beats
         {
             Debug.Log("#7");
@@ -378,7 +379,7 @@ public class Manager : MonoBehaviour
 
                 PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
 
-                PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
+                // PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
             }
 
             yield return new WaitForSeconds(16f * spb);
@@ -420,7 +421,7 @@ public class Manager : MonoBehaviour
         }
 
         // #7
-        // 최대 두명 타겟팅해서 따라다니면서 발사
+        // 최대 두명 타겟팅해서 따라다니기
         // 16 beats
         {
             Debug.Log("#7");
@@ -440,7 +441,7 @@ public class Manager : MonoBehaviour
 
                 PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
 
-                PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
+                // PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
             }
 
             yield return new WaitForSeconds(16f * spb);

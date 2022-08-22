@@ -44,7 +44,7 @@ public class ShootPattern : Pattern {
                 Projectile projectile = Manager.Instance.AddProjectile();
                 projectile.transform.position = entity.transform.position;
 
-                const float bulletSpeed = 10f;
+                const float bulletSpeed = 7f;
 
                 Vector2 direction = (target.transform.position - entity.transform.position).normalized;
 
@@ -140,7 +140,7 @@ public class BulletCirclePattern : Pattern {
     public int count = 16;
     public float beginAngle = 0;
     public float bulletRadius = 0.3f;
-    public float bulletSpeed = 6;
+    public float bulletSpeed = 5;
 
     public BulletCirclePattern(Entity entity, float beginAngle) {
         this.entity = entity;
