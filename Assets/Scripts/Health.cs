@@ -12,6 +12,7 @@ public class Health : MonoBehaviour
 
     public void Damage(int damage) {
         if (Time.time <= ignoreDamageUntil) return;
+        if (Manager.Instance.invincibleFlag) return;
 
         health -= Mathf.Min(damage, health);
 

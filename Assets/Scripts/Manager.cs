@@ -24,6 +24,7 @@ public class Manager : MonoBehaviour
     public List<Enemy> enemies = new List<Enemy>();
     public List<Projectile> projectiles = new List<Projectile>();
     public List<Shape> shapes = new List<Shape>();
+    public List<Particle> particles = new List<Particle>();
 
     int nextPlayerId = 1;
     int nextEntityId = 1;
@@ -37,7 +38,7 @@ public class Manager : MonoBehaviour
 
     public float time = 0;
 
-    public bool isPlaying = false;
+    public GameState state { get; private set; } = GameState.PLAYING;
 
     float bpm = 100f;
     float bps => bpm / 60;
@@ -49,6 +50,8 @@ public class Manager : MonoBehaviour
     List<Coroutine> patternCoroutines = new List<Coroutine>();
 
     Targeting targeting = new Targeting();
+
+    public bool invincibleFlag { get; private set; } = false;
 
     void Start() {
         BeginGame();
@@ -65,7 +68,7 @@ public class Manager : MonoBehaviour
 
         shapeRecorder = new ShapeRecorder();
 
-        isPlaying = true;
+        state = GameState.PLAYING;
 
         currentPlayerRecorder = new PlayerRecorder();
         currentPlayerRecorder.playerId = currentPlayer.entity.id;
@@ -134,7 +137,7 @@ public class Manager : MonoBehaviour
     }
 
     void Update() {
-        if (isPlaying) {
+        if (state == GameState.PLAYING) {
             foreach (Player player in players) {
                 if (!player) continue;
                 player.DoNextFrame(Time.deltaTime);
@@ -150,10 +153,16 @@ public class Manager : MonoBehaviour
                 shape.DoNextFrame(Time.deltaTime);
             }
 
+            foreach (Particle particle in particles) {
+                if (!particle) continue;
+                particle.DoNextFrame(Time.deltaTime);
+            }
+
             // Remove invalid pointers.
             players.RemoveAll(x => !x);
             projectiles.RemoveAll(x => !x);
             shapes.RemoveAll(x => !x);
+            particles.RemoveAll(x => !x);
 
             // Boss beats
             {
@@ -484,8 +493,17 @@ public class Manager : MonoBehaviour
         // }
     }
 
+    void StopBossPattern() {
+        StopCoroutine(bossPatternCoroutine);
+        foreach (Coroutine coroutine in patternCoroutines) {
+            StopCoroutine(coroutine);
+        }
+        patternCoroutines.Clear();
+    }
+
     public void RewindGame() {
         // StartCoroutine(RewindGameCoroutine());
+        invincibleFlag = true;
 
         DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutQuad).SetUpdate(true).OnComplete(() => {
 
@@ -506,16 +524,11 @@ public class Manager : MonoBehaviour
 
             float rewindDuration = time * 0.2f;
 
-            isPlaying = false;
+            state = GameState.REWINDING;
 
             Time.timeScale = 1;
 
-            // Stop boss pattern.
-            StopCoroutine(bossPatternCoroutine);
-            foreach (Coroutine coroutine in patternCoroutines) {
-                StopCoroutine(coroutine);
-            }
-            patternCoroutines.Clear();
+            StopBossPattern();
 
             // Flush player recorder.
             if (playerRecorders.Count >= maxClonedPlayers) {
@@ -549,6 +562,101 @@ public class Manager : MonoBehaviour
                 DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, 1f).SetEase(Ease.InQuad).SetUpdate(true);
             });
         });
+    }
+
+    public void WinGame() {
+        invincibleFlag = true;
+
+        DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutQuad).SetUpdate(true);
+
+        StartCoroutine(WinGameCoroutine());
+    }
+
+    IEnumerator WinGameCoroutine() {
+        float begin = Time.realtimeSinceStartup;
+
+        const float duration = 4;
+
+        boss.shape.ignoreUpdate = true;
+
+        const float shakeIntensity = 1f;
+
+        Color tintColor = Color.white;
+        Color originalColor = boss.shape.props.color;
+
+        while (Time.realtimeSinceStartup - begin < duration) {
+            float t = Time.realtimeSinceStartup;
+            float intensity = Mathf.Clamp01((t - begin) / duration);
+
+            // @Copypasta: From Shape.cs.
+            const float minShakeSpeed = 1;
+            const float maxShakeSpeed = 10;
+
+            float shakeSpeed = Mathf.Lerp(minShakeSpeed, maxShakeSpeed, Mathf.Pow(intensity, 2));
+
+            Vector2 randomVector = new Vector2(Mathf.PerlinNoise(t * shakeSpeed, 0) - 0.5f, Mathf.PerlinNoise(0, t * shakeSpeed) - 0.5f);
+
+            boss.shape.spriteRenderer.transform.localPosition = randomVector * intensity * shakeIntensity;
+
+            // @Hardcoded: Magic numbers.
+            float sin = Mathf.Sin(20 * Mathf.PI / Mathf.Pow(1 - intensity, 0.5f));
+
+            boss.shape.spriteRenderer.color = sin > 0 ? tintColor : originalColor;
+
+            yield return null;
+        }
+
+        state = GameState.FINISH;
+
+        // Time.timeScale = 1;
+
+        StopBossPattern();
+
+        Music.Instance.audioSource.Stop();
+
+        const float particleTime = 2f;
+
+        Particle particle;
+
+        // Particle
+        {
+            particle = Particle.Create();
+
+            particle.transform.position = transform.position;
+
+            particle.amount = 64;
+            particle.color = originalColor;
+            particle.duration = particleTime;
+            particle.scale = 0.5f;
+            particle.speed = 7f;
+        }
+
+        // Wait for particle to initialize.
+        yield return null;
+
+        // Delete boss gameobject here.
+        DestroyImmediate(boss.gameObject);
+
+        begin = Time.realtimeSinceStartup;
+
+        float lastTime = begin;
+
+        while (Time.realtimeSinceStartup - begin < particleTime) {
+            float rt = Time.realtimeSinceStartup;
+            float dt = rt - lastTime;
+
+            particle.DoNextFrame(dt);
+
+            foreach (Shape shape in particle.shapes) {
+                shape.DoNextFrame(dt);
+            }
+
+            lastTime = rt;
+
+            yield return null;
+        }
+
+        // @Todo: Implement scene transition logic here.
     }
 
     // IEnumerator RewindGameCoroutine() {
@@ -595,4 +703,10 @@ public class Manager : MonoBehaviour
 
     //     BeginGame();
     // }
+}
+
+public enum GameState {
+    PLAYING,
+    REWINDING,
+    FINISH,
 }

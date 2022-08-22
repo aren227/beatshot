@@ -42,6 +42,8 @@ public class Shape : MonoBehaviour
 
     public bool ignoreRecorder = false;
 
+    public bool ignoreUpdate = false;
+
     void Awake() {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
@@ -65,7 +67,10 @@ public class Shape : MonoBehaviour
         props.type = type;
 
         if (type == ShapeType.CIRCLE) spriteRenderer.sprite = PrefabRegistry.Instance.circleSprite;
-        else spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;
+        else {
+            spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;
+            // spriteRenderer.drawMode = SpriteDrawMode.Sliced;
+        }
     }
 
     public void SetRadius(float radius) {
@@ -106,6 +111,8 @@ public class Shape : MonoBehaviour
     }
 
     public void DoNextFrame(float dt) {
+        if (ignoreUpdate) return;
+
         Color col = props.color;
 
         if (props.tintTime > 0) {
@@ -144,12 +151,24 @@ public class Shape : MonoBehaviour
         if (props.faded) col.a = 0;
 
         if (props.scaleTime > 0) {
-            spriteRenderer.transform.localScale = props.scale * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
+            if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
+                spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
+                spriteRenderer.size = props.scale;
+            }
+            else {
+                spriteRenderer.transform.localScale = props.scale * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
+            }
 
             props.scaleTime -= Mathf.Min(dt, props.scaleTime);
         }
         else {
-            spriteRenderer.transform.localScale = props.scale * props.targetScale;
+            if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
+                spriteRenderer.transform.localScale = Vector3.one * props.targetScale;
+                spriteRenderer.size = props.scale;
+            }
+            else {
+                spriteRenderer.transform.localScale = props.scale * props.targetScale;
+            }
         }
 
         spriteRenderer.color = col;

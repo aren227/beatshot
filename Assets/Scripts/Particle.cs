@@ -15,7 +15,13 @@ public class Particle : MonoBehaviour
 
     float beginTime;
 
+    void Awake() {
+    }
+
     void Start() {
+        Manager.Instance.particles.Add(this);
+
+
         shapes = new Shape[amount];
         velocities = new Vector2[amount];
 
@@ -37,9 +43,9 @@ public class Particle : MonoBehaviour
         beginTime = Manager.Instance.time;
     }
 
-    void Update() {
+    public void DoNextFrame(float dt) {
         for (int i = 0; i < amount; i++) {
-            shapes[i].transform.position = shapes[i].transform.position + (Vector3)velocities[i] * Time.deltaTime;
+            shapes[i].transform.position = shapes[i].transform.position + (Vector3)velocities[i] * dt;
         }
 
         if (beginTime + duration <= Manager.Instance.time) {
