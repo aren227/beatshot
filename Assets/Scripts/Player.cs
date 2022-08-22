@@ -66,8 +66,6 @@ public class Player : MonoBehaviour
             particle.speed = 3f;
         }
 
-        Debug.Log(health);
-
         if (health <= 0) {
             DestroyImmediate(gameObject);
 
