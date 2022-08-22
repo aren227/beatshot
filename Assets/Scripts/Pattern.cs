@@ -17,16 +17,22 @@ public static class PatternUtil {
     }
 }
 
-public class ShootPattern {
+public interface Pattern {
+    IEnumerator Play();
+}
+
+public class ShootPattern : Pattern {
     public Entity entity;
     public float duration;
     public float shootRate = 0.15f;
+    public Player target;
 
     float lastShoot;
 
-    public ShootPattern(Entity entity, float duration, float shootRate = 0.15f) {
+    public ShootPattern(Entity entity, float duration, Player target, float shootRate = 0.15f) {
         this.entity = entity;
         this.duration = duration;
+        this.target = target;
         this.shootRate = shootRate;
     }
 
@@ -34,13 +40,11 @@ public class ShootPattern {
         float begin = Manager.Instance.time;
 
         while (entity && begin + duration > Manager.Instance.time) {
-            Player target = PatternUtil.GetOldestPlayer();
-
             if (target) {
                 Projectile projectile = Manager.Instance.AddProjectile();
                 projectile.transform.position = entity.transform.position;
 
-                const float bulletSpeed = 13f;
+                const float bulletSpeed = 10f;
 
                 Vector2 direction = (target.transform.position - entity.transform.position).normalized;
 
@@ -58,7 +62,7 @@ public class ShootPattern {
     }
 }
 
-public class RotatePattern {
+public class RotatePattern : Pattern {
     public Entity entity;
     public float duration;
 
@@ -90,7 +94,7 @@ public class RotatePattern {
     }
 }
 
-public class MoveToPattern {
+public class MoveToPattern : Pattern {
     public Entity entity;
     public float duration;
 
@@ -131,7 +135,7 @@ public class MoveToPattern {
     }
 }
 
-public class BulletCirclePattern {
+public class BulletCirclePattern : Pattern {
     public Entity entity;
     public int count = 16;
     public float beginAngle = 0;
@@ -164,7 +168,7 @@ public class BulletCirclePattern {
     }
 }
 
-public class LaserPattern {
+public class LaserPattern : Pattern {
     public Entity entity;
     public float warningDuration;
     public float laserDuration;
@@ -216,7 +220,7 @@ public class LaserPattern {
     }
 }
 
-public class DashPattern {
+public class DashPattern : Pattern {
     public Entity entity;
     public float warningDuration;
     public float dashDuration;
@@ -268,7 +272,7 @@ public class DashPattern {
     }
 }
 
-public class AreaPattern {
+public class AreaPattern : Pattern {
     public float warningDuration;
     public float transitionDuration = 0.5f;
     public float duration;
@@ -308,5 +312,47 @@ public class AreaPattern {
         shape.transform.DOMove(center + moveDirection * 20, transitionDuration).OnComplete(() => {
             if (shape) GameObject.DestroyImmediate(shape.gameObject);
         });
+    }
+}
+
+public class FollowPattern : Pattern {
+    public Entity entity;
+    public float duration;
+    public float rotation;
+    public Player target;
+
+    public Vector2 positionVel;
+
+    public const float smoothTime = 0.5f;
+    public const float maxSpeed = 3;
+
+    public FollowPattern(Entity entity, float duration, float rotation, Player target) {
+        this.entity = entity;
+        this.duration = duration;
+        this.rotation = rotation;
+        this.target = target;
+    }
+
+    public IEnumerator Play() {
+        float begin = Manager.Instance.time;
+
+        entity.transform.localEulerAngles = new Vector3(0, 0, 0);
+
+        positionVel = Vector2.zero;
+
+        while (entity && begin + duration > Manager.Instance.time) {
+            float time = Manager.Instance.time;
+
+            float t = Mathf.Clamp01((time - begin) / duration);
+            t = EasingFunctions.InOutQuad(t);
+
+            Vector2 targetPos = entity.transform.position;
+            if (target) targetPos = target.transform.position;
+
+            entity.transform.position = Vector2.SmoothDamp(entity.transform.position, targetPos, ref positionVel, smoothTime, maxSpeed);
+            entity.transform.eulerAngles = new Vector3(0, 0, t * rotation);
+
+            yield return null;
+        }
     }
 }

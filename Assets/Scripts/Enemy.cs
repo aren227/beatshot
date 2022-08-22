@@ -6,13 +6,14 @@ using DG.Tweening;
 public class Enemy : MonoBehaviour
 {
     public Entity entity;
+    public Health health;
     public Shape shape;
 
     void Awake() {
         entity = GetComponent<Entity>();
         shape = GetComponentInChildren<Shape>();
 
-        Health health = GetComponent<Health>();
+        health = GetComponent<Health>();
 
         health.health = 1000;
         health.onDamaged.AddListener(health => {
@@ -24,10 +25,11 @@ public class Enemy : MonoBehaviour
                 shape.Tint(0.2f, Color.white);
             }
         });
+
+        shape.SetScale(new Vector2(3, 3));
     }
 
     void Start() {
         shape.SetType(ShapeType.BOX);
-        shape.SetScale(new Vector2(3, 3));
     }
 }

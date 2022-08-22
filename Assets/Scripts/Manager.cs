@@ -21,6 +21,7 @@ public class Manager : MonoBehaviour
     public Enemy boss;
 
     public List<Player> players = new List<Player>();
+    public List<Enemy> enemies = new List<Enemy>();
     public List<Projectile> projectiles = new List<Projectile>();
     public List<Shape> shapes = new List<Shape>();
 
@@ -30,7 +31,7 @@ public class Manager : MonoBehaviour
     ShapeRecorder shapeRecorder;
     const float shapeRecordInterval = 0.05f;
 
-    const int maxClonedPlayers = 2;
+    const int maxClonedPlayers = 1;
     List<PlayerRecorder> playerRecorders = new List<PlayerRecorder>();
     PlayerRecorder currentPlayerRecorder;
 
@@ -38,12 +39,16 @@ public class Manager : MonoBehaviour
 
     public bool isPlaying = false;
 
-    float bpm = 127.95f;
+    float bpm = 100f;
     float bps => bpm / 60;
     float spb => 1f / bps;
     float beamTime => time * bps;
 
     Coroutine bossPatternCoroutine;
+
+    List<Coroutine> patternCoroutines = new List<Coroutine>();
+
+    Targeting targeting = new Targeting();
 
     void Start() {
         BeginGame();
@@ -85,6 +90,8 @@ public class Manager : MonoBehaviour
             clonedPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutQuad).SetUpdate(true);
         }
 
+        targeting.Reset();
+
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
 
         Music.Instance.audioSource.Play();
@@ -104,7 +111,12 @@ public class Manager : MonoBehaviour
     public Enemy AddEnemy() {
         Enemy enemy = Instantiate(PrefabRegistry.Instance.enemy).GetComponent<Enemy>();
 
-        enemy.entity.id = nextEntityId++;
+        enemies.Add(enemy);
+
+        // enemy.entity.id = nextEntityId++;
+
+        // @Hack: Enemies ignore their bullets.
+        enemy.entity.id = 0;
 
         return enemy;
     }
@@ -161,51 +173,38 @@ public class Manager : MonoBehaviour
         }
     }
 
+    void PlayPattern(Pattern pattern) {
+        patternCoroutines.Add(StartCoroutine(pattern.Play()));
+    }
+
     public IEnumerator DoBossPattern() {
         boss = AddEnemy();
         boss.transform.position = Vector3.zero;
 
-        yield return new WaitForSeconds(4 * spb);
+        boss.shape.SetScale(new Vector2(3, 3));
 
         // @Todo: All pattern coroutines must be force stopped when the game is restarting.
         // @Todo: If target is invalid, then target to current player, not oldest.
         // This implies pattern states should be shared.
 
-        // #5
-        // 상하좌우 영역
+        // #0
+        // IDLE
         // 8 beats
         {
-            Debug.Log("#5");
+            Debug.Log("#0");
 
-            StartCoroutine(new ShootPattern(boss.entity, 16f * spb, 2f * spb).Play());
-
-            StartCoroutine(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, -2.5f)).Play());
-
-            StartCoroutine(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, 5), new Vector2(20, 10), new Vector2(1, 0)).Play());
-            yield return new WaitForSeconds(8f * spb);
-
-            StartCoroutine(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, 2.5f)).Play());
-
-            StartCoroutine(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, -5), new Vector2(20, 10), new Vector2(1, 0)).Play());
             yield return new WaitForSeconds(8f * spb);
         }
 
-        // #4
-        // 타겟팅 점프 - 원
-        // 32 beats
+        // #6
+        // 추적
+        // 16 beats
         {
-            Debug.Log("#4");
+            Debug.Log("#6");
 
-            for (int i = 0; i < 4; i++) {
-                StartCoroutine(new DashPattern(boss.entity, 2f * spb, 0.5f * spb).Play());
-                yield return new WaitForSeconds(2 * spb);
+            PlayPattern(new FollowPattern(boss.entity, 16f * spb, 360 * 2, targeting.GetTarget()));
 
-                yield return new WaitForSeconds(2 * spb);
-
-                StartCoroutine(new BulletCirclePattern(boss.entity, 15).Play());
-
-                yield return new WaitForSeconds(2 * spb);
-            }
+            yield return new WaitForSeconds(16f * spb);
         }
 
         yield return new WaitForSeconds(4 * spb);
@@ -216,27 +215,29 @@ public class Manager : MonoBehaviour
         {
             Debug.Log("#1");
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)).Play());
-            StartCoroutine(new ShootPattern(boss.entity, 2 * spb).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)));
+            PlayPattern(new ShootPattern(boss.entity, 2 * spb, targeting.GetTarget()));
 
             yield return new WaitForSeconds(4 * spb);
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)).Play());
-            StartCoroutine(new ShootPattern(boss.entity, 2 * spb).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
+            PlayPattern(new ShootPattern(boss.entity, 2 * spb, targeting.GetTarget()));
 
             yield return new WaitForSeconds(4 * spb);
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)).Play());
-            StartCoroutine(new ShootPattern(boss.entity, 8 * spb).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)));
+            PlayPattern(new ShootPattern(boss.entity, 8 * spb, targeting.GetTarget()));
 
             yield return new WaitForSeconds(4 * spb);
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
 
             yield return new WaitForSeconds(4 * spb);
         }
 
         yield return new WaitForSeconds(4 * spb);
+
+        PlayPattern(new BulletCirclePattern(boss.entity, 15));
 
         // #2
         // 왼쪽에서 원, 오른쪽에서 원, 중앙에서 원x3
@@ -244,69 +245,239 @@ public class Manager : MonoBehaviour
         {
             Debug.Log("#2");
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new BulletCirclePattern(boss.entity, 15).Play());
+            PlayPattern(new BulletCirclePattern(boss.entity, 15));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new BulletCirclePattern(boss.entity, -15).Play());
+            PlayPattern(new BulletCirclePattern(boss.entity, -15));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)).Play());
+            PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new BulletCirclePattern(boss.entity, 0).Play());
+            PlayPattern(new BulletCirclePattern(boss.entity, 0));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new BulletCirclePattern(boss.entity, 15).Play());
+            PlayPattern(new BulletCirclePattern(boss.entity, 15));
             yield return new WaitForSeconds(2 * spb);
 
-            StartCoroutine(new BulletCirclePattern(boss.entity, 30).Play());
+            PlayPattern(new BulletCirclePattern(boss.entity, 30));
             yield return new WaitForSeconds(2 * spb);
         }
 
-        yield return new WaitForSeconds(4 * spb);
-
-        // #3
-        // 레이저 시계방향, 반시계방향
-        // 32 beats
+        // #7
+        // 최대 두명 타겟팅해서 따라다니면서 발사
+        // 16 beats
         {
-            Debug.Log("#3");
+            Debug.Log("#7");
 
-            StartCoroutine(new LaserPattern(boss.entity, 4 * spb, (32-4) * spb).Play());
-            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 0, 360).Play());
+            Player playerA = null, playerB = null;
 
-            yield return new WaitForSeconds(16 * spb);
+            targeting.GetTwoTargets(ref playerA, ref playerB);
 
-            StartCoroutine(new RotatePattern(boss.entity, 16 * spb, 360, 0).Play());
+            Player[] players = new Player[] { playerA, playerB };
 
-            yield return new WaitForSeconds(16 * spb);
+            foreach (Player player in players) {
+                if (!player) continue;
+
+                Enemy enemy = AddEnemy();
+                enemy.shape.SetScale(new Vector2(1, 1));
+                enemy.health.health = 40;
+
+                PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
+
+                PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
+            }
+
+            yield return new WaitForSeconds(16f * spb);
         }
 
-        yield return new WaitForSeconds(4 * spb);
-
-        yield return new WaitForSeconds(2);
+        // #5
+        // 상하좌우 영역
+        // 16 beats
         {
-            // ShootPattern pattern = new ShootPattern(boss.entity, 20f);
+            Debug.Log("#5");
 
-            // StartCoroutine(pattern.Play());
+            // Upper
+
+            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
+
+            PlayPattern(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, -2.5f)));
+
+            PlayPattern(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, 5), new Vector2(20, 10), new Vector2(1, 0)));
+
+            yield return new WaitForSeconds(4f * spb);
+
+            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
+
+            yield return new WaitForSeconds(4f * spb);
+
+            // Lower
+
+            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
+
+            PlayPattern(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, 2.5f)));
+
+            PlayPattern(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, -5), new Vector2(20, 10), new Vector2(1, 0)));
+
+            yield return new WaitForSeconds(4f * spb);
+
+            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
+
+            yield return new WaitForSeconds(4f * spb);
         }
-        for (int i = 0; i < 10; i++) {
-            Vector2 target;
-            // @Hardcoded
-            if (i % 2 == 0) target = new Vector2(-5, 0);
-            else target = new Vector2(5, 0);
 
-            MoveToPattern pattern = new MoveToPattern(boss.entity, 3, target);
+        // #7
+        // 최대 두명 타겟팅해서 따라다니면서 발사
+        // 16 beats
+        {
+            Debug.Log("#7");
 
-            StartCoroutine(pattern.Play());
+            Player playerA = null, playerB = null;
 
-            yield return new WaitForSeconds(3);
+            targeting.GetTwoTargets(ref playerA, ref playerB);
+
+            Player[] players = new Player[] { playerA, playerB };
+
+            foreach (Player player in players) {
+                if (!player) continue;
+
+                Enemy enemy = AddEnemy();
+                enemy.shape.SetScale(new Vector2(1, 1));
+                enemy.health.health = 40;
+
+                PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
+
+                PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
+            }
+
+            yield return new WaitForSeconds(16f * spb);
         }
+
+
+
+        // // #4
+        // // 타겟팅 점프 - 원
+        // // 32 beats
+        // {
+        //     Debug.Log("#4");
+
+        //     for (int i = 0; i < 4; i++) {
+        //         PlayPattern(new DashPattern(boss.entity, 2f * spb, 0.5f * spb));
+        //         yield return new WaitForSeconds(2 * spb);
+
+        //         yield return new WaitForSeconds(2 * spb);
+
+        //         PlayPattern(new BulletCirclePattern(boss.entity, 15));
+
+        //         yield return new WaitForSeconds(2 * spb);
+        //     }
+        // }
+
+        // yield return new WaitForSeconds(4 * spb);
+
+        // // #1
+        // // 왔다갔다 하면서 타겟팅
+        // // 16 beats
+        // {
+        //     Debug.Log("#1");
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)));
+        //     PlayPattern(new ShootPattern(boss.entity, 2 * spb));
+
+        //     yield return new WaitForSeconds(4 * spb);
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
+        //     PlayPattern(new ShootPattern(boss.entity, 2 * spb));
+
+        //     yield return new WaitForSeconds(4 * spb);
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)));
+        //     PlayPattern(new ShootPattern(boss.entity, 8 * spb));
+
+        //     yield return new WaitForSeconds(4 * spb);
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
+
+        //     yield return new WaitForSeconds(4 * spb);
+        // }
+
+        // yield return new WaitForSeconds(4 * spb);
+
+        // // #2
+        // // 왼쪽에서 원, 오른쪽에서 원, 중앙에서 원x3
+        // // 16 beats
+        // {
+        //     Debug.Log("#2");
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(-5, 0)));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new BulletCirclePattern(boss.entity, 15));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(5, 0)));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new BulletCirclePattern(boss.entity, -15));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new BulletCirclePattern(boss.entity, 0));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new BulletCirclePattern(boss.entity, 15));
+        //     yield return new WaitForSeconds(2 * spb);
+
+        //     PlayPattern(new BulletCirclePattern(boss.entity, 30));
+        //     yield return new WaitForSeconds(2 * spb);
+        // }
+
+        // yield return new WaitForSeconds(4 * spb);
+
+        // // #3
+        // // 레이저 시계방향, 반시계방향
+        // // 32 beats
+        // {
+        //     Debug.Log("#3");
+
+        //     PlayPattern(new LaserPattern(boss.entity, 4 * spb, (32-4) * spb));
+        //     PlayPattern(new RotatePattern(boss.entity, 16 * spb, 0, 360));
+
+        //     yield return new WaitForSeconds(16 * spb);
+
+        //     PlayPattern(new RotatePattern(boss.entity, 16 * spb, 360, 0));
+
+        //     yield return new WaitForSeconds(16 * spb);
+        // }
+
+        // yield return new WaitForSeconds(4 * spb);
+
+        // yield return new WaitForSeconds(2);
+        // {
+        //     // ShootPattern pattern = new ShootPattern(boss.entity, 20f);
+
+        //     // PlayPattern(pattern.Play());
+        // }
+        // for (int i = 0; i < 10; i++) {
+        //     Vector2 target;
+        //     // @Hardcoded
+        //     if (i % 2 == 0) target = new Vector2(-5, 0);
+        //     else target = new Vector2(5, 0);
+
+        //     MoveToPattern pattern = new MoveToPattern(boss.entity, 3, target);
+
+        //     PlayPattern(pattern);
+
+        //     yield return new WaitForSeconds(3);
+        // }
     }
 
     public void RewindGame() {
@@ -315,6 +486,7 @@ public class Manager : MonoBehaviour
         DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutQuad).SetUpdate(true).OnComplete(() => {
 
             foreach (Player player in players) if (player) DestroyImmediate(player.gameObject);
+            foreach (Enemy enemy in enemies) if (enemy) DestroyImmediate(enemy.gameObject);
             foreach (Projectile projectile in projectiles) if (projectile) DestroyImmediate(projectile.gameObject);
             foreach (Shape shape in shapes) if (shape) DestroyImmediate(shape.gameObject);
 
@@ -324,6 +496,7 @@ public class Manager : MonoBehaviour
             }
 
             players.Clear();
+            enemies.Clear();
             projectiles.Clear();
             shapes.Clear();
 
@@ -335,6 +508,10 @@ public class Manager : MonoBehaviour
 
             // Stop boss pattern.
             StopCoroutine(bossPatternCoroutine);
+            foreach (Coroutine coroutine in patternCoroutines) {
+                StopCoroutine(coroutine);
+            }
+            patternCoroutines.Clear();
 
             // Flush player recorder.
             if (playerRecorders.Count >= maxClonedPlayers) {
