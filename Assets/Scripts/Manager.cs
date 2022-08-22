@@ -38,7 +38,7 @@ public class Manager : MonoBehaviour
 
     public float time = 0;
 
-    public GameState state { get; private set; } = GameState.PLAYING;
+    public GameState state { get; private set; } = GameState.READY;
 
     float bpm = 100f;
     float totalBeats = 32;
@@ -57,13 +57,40 @@ public class Manager : MonoBehaviour
 
     public GlobalData globalData;
 
+    public SpriteRenderer playerBelowLayer;
+    float playerBelowLayerOpacity;
+
     void Start() {
+        playerBelowLayer.enabled = true;
+        playerBelowLayer.color = Color.black;
+        playerBelowLayerOpacity = 1;
+
+        StartCoroutine(InitCoroutine());
+    }
+
+    IEnumerator InitCoroutine() {
+        IngameUi.Instance.SetText(globalData.current.title, globalData.current.artist);
+        IngameUi.Instance.DoAnimation();
+
+        // @Hardcoded: Can be different from the actual duration!
+        yield return new WaitForSeconds(3f);
+
         BeginGame();
     }
 
     public void BeginGame() {
         // Enemy enemy = AddEnemy();
         // enemy.transform.position = Vector3.zero;
+
+        const float prepareDuration = 2f;
+
+        // Restore timescale.
+        Time.timeScale = 0;
+        DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, prepareDuration).SetEase(Ease.InQuad).SetUpdate(true);
+
+        // Clear black layer.
+        playerBelowLayerOpacity = 1;
+        DOTween.To(() => playerBelowLayerOpacity, x => playerBelowLayerOpacity = x, 0, prepareDuration);
 
         currentPlayer = AddPlayer();
 
@@ -81,7 +108,7 @@ public class Manager : MonoBehaviour
 
         Vector3 scale = currentPlayer.transform.localScale;
         currentPlayer.transform.localScale = Vector3.zero;
-        currentPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
+        currentPlayer.transform.DOScale(scale, 1f).SetEase(Ease.OutBounce).SetUpdate(true);
 
         foreach (PlayerRecorder playerRecorder in playerRecorders) {
             playerRecorder.Reset();
@@ -96,7 +123,7 @@ public class Manager : MonoBehaviour
 
             scale = clonedPlayer.transform.localScale;
             clonedPlayer.transform.localScale = Vector3.zero;
-            clonedPlayer.transform.DOScale(scale, 0.5f).SetEase(Ease.OutQuad).SetUpdate(true);
+            clonedPlayer.transform.DOScale(scale, 1f).SetEase(Ease.OutQuad).SetUpdate(true);
         }
 
         foreach (Player player in players) {
@@ -197,6 +224,8 @@ public class Manager : MonoBehaviour
                 Manager.Instance.RewindGame();
             }
         }
+
+        playerBelowLayer.color = new Color(0, 0, 0, playerBelowLayerOpacity);
     }
 
     void PlayPattern(Pattern pattern) {
@@ -552,6 +581,8 @@ public class Manager : MonoBehaviour
 
             Music.Instance.audioSource.Stop();
 
+            DOTween.To(() => playerBelowLayerOpacity, x => playerBelowLayerOpacity = x, 1, rewindDuration).SetEase(Ease.InCubic);
+
             DOTween.To(() => time, x => {
                 time = x;
 
@@ -573,8 +604,6 @@ public class Manager : MonoBehaviour
                 shapes.Clear();
 
                 BeginGame();
-
-                DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 1f, 1f).SetEase(Ease.InQuad).SetUpdate(true);
             });
         });
     }
@@ -721,6 +750,7 @@ public class Manager : MonoBehaviour
 }
 
 public enum GameState {
+    READY,
     PLAYING,
     REWINDING,
     FINISH,

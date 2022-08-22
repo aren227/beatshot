@@ -23,6 +23,7 @@ public class ShapeRecorder
             shapeSnapshot.position = shape.spriteRenderer.transform.position;
             shapeSnapshot.rotation = shape.transform.eulerAngles.z;
             shapeSnapshot.scale = shape.spriteRenderer.transform.lossyScale;
+            shapeSnapshot.order = shape.spriteRenderer.sortingOrder;
 
             frameSnapshot.shapeSnapshots.Add(shapeSnapshot);
         }
@@ -66,6 +67,8 @@ public class FrameSnapshot {
             shape.SetColor(shapeSnapshot.color);
             shape.SetType(shapeSnapshot.type);
 
+            shape.spriteRenderer.sortingOrder = shapeSnapshot.order;
+
             shape.DoNextFrame(0);
         }
     }
@@ -77,4 +80,5 @@ public class ShapeSnapshot {
     public Vector3 position;
     public float rotation;
     public Vector3 scale;
+    public int order;
 }
