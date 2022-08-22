@@ -114,6 +114,16 @@ public class Player : MonoBehaviour
 
             transform.position = transform.position + moveDir * dt * speed;
 
+            // Clamp position to bounds.
+            Vector2 worldMin = Manager.Instance.worldMin;
+            Vector2 worldMax = Manager.Instance.worldMax;
+            float radius = shape.GetRadius();
+
+            transform.position = new Vector2(
+                Mathf.Clamp(transform.position.x, worldMin.x + radius, worldMax.x - radius),
+                Mathf.Clamp(transform.position.y, worldMin.y + radius, worldMax.y - radius)
+            );
+
             // Dash
             if (Input.GetKeyDown(KeyCode.Space)) {
                 const float dashDistance = 1;

@@ -66,6 +66,8 @@ public class Manager : MonoBehaviour
 
     public bool paused = false;
 
+    public Vector2 worldMin, worldMax;
+
     void Start() {
         playerBelowLayer.enabled = true;
         playerBelowLayer.color = Color.black;
@@ -74,6 +76,9 @@ public class Manager : MonoBehaviour
         upmostLayer.enabled = true;
         upmostLayer.color = Color.black;
         upmostLayerOpacity = 0;
+
+        worldMin = new Vector2(-5 * (16f / 9f), -5);
+        worldMax = new Vector2(5 * (16f / 9f), 5);
 
         StartCoroutine(InitCoroutine());
     }
