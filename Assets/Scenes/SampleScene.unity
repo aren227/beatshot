@@ -194,6 +194,7 @@ MonoBehaviour:
   shapes: []
   particles: []
   time: 0
+  deltaTime: 0
   globalData: {fileID: 11400000, guid: 95285714216da53448b02f4d2e18fa23, type: 2}
   playerBelowLayer: {fileID: 1252381070}
   playerBelowLayerOpacity: 0
@@ -1222,7 +1223,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: dffba41bd2935394a8340a6836df97e3, type: 3}
+  m_audioClip: {fileID: 8300000, guid: e07f1dafdf9c58e4797d52090ee14ae6, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
