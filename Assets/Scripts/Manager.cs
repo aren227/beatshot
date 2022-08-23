@@ -276,9 +276,59 @@ public class Manager : MonoBehaviour
 
         boss.shape.SetScale(new Vector2(3, 3));
 
-        // @Todo: All pattern coroutines must be force stopped when the game is restarting.
-        // @Todo: If target is invalid, then target to current player, not oldest.
-        // This implies pattern states should be shared.
+        // #7
+        // 최대 두명 타겟팅해서 따라다니기 + 약한 원
+        // 16 beats
+        {
+            Debug.Log("#7");
+
+            Player playerA = null, playerB = null;
+
+            targeting.GetTwoTargets(ref playerA, ref playerB);
+
+            Player[] players = new Player[] { playerA, playerB };
+            Enemy[] enemies = new Enemy[] { null, null };
+
+            for (int i = 0; i < 2; i++) {
+                Player player = players[i];
+
+                if (!player) continue;
+
+                Enemy enemy = AddEnemy();
+                enemy.shape.SetScale(new Vector2(1, 1));
+                enemy.health.health = 20;
+
+                PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
+
+                enemies[i] = enemy;
+
+                // PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
+            }
+
+            LockDamagePattern lockDamagePattern = new LockDamagePattern(boss, 16f * spb);
+
+            for (int i = 0; i < 2; i++) {
+                if (enemies[i]) lockDamagePattern.targetEntities.Add(enemies[i].entity);
+            }
+
+            PlayPattern(lockDamagePattern);
+
+            for (int i = 0; i < 4; i++) {
+                BulletCirclePattern pattern = new BulletCirclePattern(boss.entity, i * 45);
+                pattern.count = 4;
+                PlayPattern(pattern);
+
+                yield return new WaitForSeconds(4f * spb);
+            }
+
+            // Delete enemies.
+            for (int i = 0; i < 2; i++) {
+                if (enemies[i]) {
+                    enemies[i].health.Damage(enemies[i].health.health);
+                }
+            }
+        }
+
 
         // #0
         // IDLE
@@ -374,20 +424,40 @@ public class Manager : MonoBehaviour
             targeting.GetTwoTargets(ref playerA, ref playerB);
 
             Player[] players = new Player[] { playerA, playerB };
+            Enemy[] enemies = new Enemy[] { null, null };
 
-            foreach (Player player in players) {
+            for (int i = 0; i < 2; i++) {
+                Player player = players[i];
+
                 if (!player) continue;
 
                 Enemy enemy = AddEnemy();
                 enemy.shape.SetScale(new Vector2(1, 1));
-                enemy.health.health = 40;
+                enemy.health.health = 20;
 
                 PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
+
+                enemies[i] = enemy;
 
                 // PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
             }
 
+            LockDamagePattern lockDamagePattern = new LockDamagePattern(boss, 16f * spb);
+
+            for (int i = 0; i < 2; i++) {
+                if (enemies[i]) lockDamagePattern.targetEntities.Add(enemies[i].entity);
+            }
+
+            PlayPattern(lockDamagePattern);
+
             yield return new WaitForSeconds(16f * spb);
+
+            // Delete enemies.
+            for (int i = 0; i < 2; i++) {
+                if (enemies[i]) {
+                    enemies[i].health.Damage(enemies[i].health.health);
+                }
+            }
         }
 
         // #5
@@ -426,7 +496,7 @@ public class Manager : MonoBehaviour
         }
 
         // #7
-        // 최대 두명 타겟팅해서 따라다니기
+        // 최대 두명 타겟팅해서 따라다니기 + 약한 원
         // 16 beats
         {
             Debug.Log("#7");
@@ -436,20 +506,46 @@ public class Manager : MonoBehaviour
             targeting.GetTwoTargets(ref playerA, ref playerB);
 
             Player[] players = new Player[] { playerA, playerB };
+            Enemy[] enemies = new Enemy[] { null, null };
 
-            foreach (Player player in players) {
+            for (int i = 0; i < 2; i++) {
+                Player player = players[i];
+
                 if (!player) continue;
 
                 Enemy enemy = AddEnemy();
                 enemy.shape.SetScale(new Vector2(1, 1));
-                enemy.health.health = 40;
+                enemy.health.health = 20;
 
                 PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
+
+                enemies[i] = enemy;
 
                 // PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
             }
 
-            yield return new WaitForSeconds(16f * spb);
+            LockDamagePattern lockDamagePattern = new LockDamagePattern(boss, 16f * spb);
+
+            for (int i = 0; i < 2; i++) {
+                if (enemies[i]) lockDamagePattern.targetEntities.Add(enemies[i].entity);
+            }
+
+            PlayPattern(lockDamagePattern);
+
+            for (int i = 0; i < 4; i++) {
+                BulletCirclePattern pattern = new BulletCirclePattern(boss.entity, 4);
+                pattern.beginAngle = i * 45;
+                PlayPattern(pattern);
+
+                yield return new WaitForSeconds(4f * spb);
+            }
+
+            // Delete enemies.
+            for (int i = 0; i < 2; i++) {
+                if (enemies[i]) {
+                    enemies[i].health.Damage(enemies[i].health.health);
+                }
+            }
         }
 
 

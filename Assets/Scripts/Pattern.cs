@@ -152,7 +152,7 @@ public class BulletCirclePattern : Pattern {
             Projectile projectile = Manager.Instance.AddProjectile();
             projectile.transform.position = entity.transform.position;
 
-            float angle = beginAngle * Mathf.Deg2Rad + (float)i / 16f * Mathf.PI * 2;
+            float angle = beginAngle * Mathf.Deg2Rad + (float)i / count * Mathf.PI * 2;
 
             Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 
@@ -354,5 +354,51 @@ public class FollowPattern : Pattern {
 
             yield return null;
         }
+    }
+}
+
+public class LockDamagePattern : Pattern {
+    public Enemy enemy;
+    public float duration;
+    public List<Entity> targetEntities = new List<Entity>();
+
+    Color originalColor;
+
+    public LockDamagePattern(Enemy enemy, float duration) {
+        this.enemy = enemy;
+        this.duration = duration;
+        originalColor = enemy.shape.props.color;
+    }
+
+    public IEnumerator Play() {
+        float begin = Manager.Instance.time;
+
+        while (enemy && begin + duration > Manager.Instance.time) {
+            float time = Manager.Instance.time;
+
+            bool canBeDamaged = true;
+            foreach (Entity entity in targetEntities) {
+                if (entity) {
+                    canBeDamaged = false;
+                    break;
+                }
+            }
+
+            // @Hardcoded
+            if (canBeDamaged) {
+                enemy.shape.SetColor(originalColor);
+                // @Todo: This will overwrite but for now, this value is not used by enemy.
+                enemy.health.ignoreDamageUntil = 0;
+            }
+            else {
+                enemy.shape.SetColor(Color.gray);
+                enemy.health.ignoreDamageUntil = float.PositiveInfinity;
+            }
+
+            yield return null;
+        }
+
+        enemy.shape.SetColor(originalColor);
+        enemy.health.ignoreDamageUntil = 0;
     }
 }
