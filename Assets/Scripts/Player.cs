@@ -60,6 +60,8 @@ public class Player : MonoBehaviour
         drop.Fade(0.5f);
         drop.Scale(4f, 0.5f);
 
+        SFX.Instance.Play("playerHit");
+
         // Particle
         {
             Particle particle = Particle.Create();

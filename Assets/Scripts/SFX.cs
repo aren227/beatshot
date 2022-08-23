@@ -19,6 +19,7 @@ public class SFX : MonoBehaviour
     public AudioClip hit;
     public AudioClip preBigExplosion;
     public AudioClip postBigExplosion;
+    public AudioClip playerHit;
 
     AudioSource audioSource;
 
@@ -41,6 +42,9 @@ public class SFX : MonoBehaviour
         }
         else if (sound == "postBigExplosion") {
             audioSource.PlayOneShot(postBigExplosion, 1f * volume);
+        }
+        else if (sound == "playerHit") {
+            audioSource.PlayOneShot(playerHit, 0.6f * volume);
         }
     }
 }

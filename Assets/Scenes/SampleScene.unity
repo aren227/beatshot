@@ -324,6 +324,7 @@ MonoBehaviour:
   hit: {fileID: 8300000, guid: 21e82555f03e5814cb57849630ee9417, type: 3}
   preBigExplosion: {fileID: 8300000, guid: c0d7c9aaa6a180447a2ca4d9240822bc, type: 3}
   postBigExplosion: {fileID: 8300000, guid: fe14dbb0d82c90541b380e3227b8caf9, type: 3}
+  playerHit: {fileID: 8300000, guid: 4546848b94e391a45a5e456d07d5411a, type: 3}
 --- !u!114 &51542218
 MonoBehaviour:
   m_ObjectHideFlags: 0
