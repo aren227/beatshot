@@ -126,10 +126,10 @@ public class Player : MonoBehaviour
             );
 
             // Dash
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                const float dashDistance = 1;
-                transform.position = transform.position + moveDir * dashDistance;
-            }
+            // if (Input.GetKeyDown(KeyCode.Space)) {
+            //     const float dashDistance = 1;
+            //     transform.position = transform.position + moveDir * dashDistance;
+            // }
 
             // Shoot
             shootFlag = false;
