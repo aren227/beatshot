@@ -36,6 +36,7 @@ public struct ShapeProperties {
 public enum ShapeType {
     CIRCLE,
     BOX,
+    CIRCLE_BORDER,
 }
 
 public class Shape : MonoBehaviour
@@ -94,9 +95,12 @@ public class Shape : MonoBehaviour
         props.type = type;
 
         if (type == ShapeType.CIRCLE) spriteRenderer.sprite = PrefabRegistry.Instance.circleSprite;
+        else if (type == ShapeType.CIRCLE_BORDER) {
+            spriteRenderer.sprite = PrefabRegistry.Instance.circleBorderSprite;
+            // spriteRenderer.drawMode = SpriteDrawMode.Sliced;
+        }
         else {
             spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;
-            // spriteRenderer.drawMode = SpriteDrawMode.Sliced;
         }
 
         shadowSpriteRenderer.sprite = spriteRenderer.sprite;

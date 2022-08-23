@@ -27,12 +27,15 @@ public class Player : MonoBehaviour
         health = GetComponent<Health>();
         shape = GetComponentInChildren<Shape>();
 
-        health.health = 1;
+        health.health = 2;
         health.onDamaged.AddListener(TakeDamage);
     }
 
     void Start() {
         shape.SetRadius(0.25f);
+        if (health.health >= 2) shape.SetType(ShapeType.CIRCLE);
+        else shape.SetType(ShapeType.CIRCLE_BORDER);
+
         shape.SetShadow(PrefabRegistry.Instance.shadowOffset * 0.7f, PrefabRegistry.Instance.shadowColor);
     }
 
@@ -44,6 +47,9 @@ public class Player : MonoBehaviour
     public void TakeDamage(int health) {
         shape.Blink(ignoreDamageTime);
         shape.Shake(0.3f, 0.5f);
+
+        if (health >= 2) shape.SetType(ShapeType.CIRCLE);
+        else shape.SetType(ShapeType.CIRCLE_BORDER);
 
         this.health.ignoreDamageUntil = Time.time + ignoreDamageTime;
 
