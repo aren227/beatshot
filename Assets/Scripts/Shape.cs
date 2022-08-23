@@ -37,6 +37,7 @@ public enum ShapeType {
     CIRCLE,
     BOX,
     CIRCLE_BORDER,
+    CIRCLE_BORDER_2,
 }
 
 public class Shape : MonoBehaviour
@@ -98,6 +99,9 @@ public class Shape : MonoBehaviour
         else if (type == ShapeType.CIRCLE_BORDER) {
             spriteRenderer.sprite = PrefabRegistry.Instance.circleBorderSprite;
             // spriteRenderer.drawMode = SpriteDrawMode.Sliced;
+        }
+        else if (type == ShapeType.CIRCLE_BORDER_2) {
+            spriteRenderer.sprite = PrefabRegistry.Instance.circleBorder2Sprite;
         }
         else {
             spriteRenderer.sprite = PrefabRegistry.Instance.boxSprite;

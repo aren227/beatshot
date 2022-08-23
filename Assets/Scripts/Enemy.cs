@@ -19,7 +19,7 @@ public class Enemy : MonoBehaviour
         health = GetComponent<Health>();
         shape = GetComponentInChildren<Shape>();
 
-        maxHealth = 550;
+        maxHealth = 600;
         health.health = maxHealth;
 
         scale = 3;

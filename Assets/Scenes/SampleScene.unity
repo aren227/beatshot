@@ -164,6 +164,7 @@ MonoBehaviour:
   circleSprite: {fileID: 21300000, guid: 92eebd9a5e04b154db5638e6dc510c6a, type: 3}
   boxSprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
   circleBorderSprite: {fileID: 21300000, guid: 8b705ee126025c34f8eb1f720da50852, type: 3}
+  circleBorder2Sprite: {fileID: 21300000, guid: 8cb230dfe7d32a041b8305fcb691dc64, type: 3}
   shadowColor: {r: 0.2109375, g: 0.225, b: 0.3, a: 1}
   shadowOffset: {x: 0.05, y: -0.05}
   warningColor: {r: 1, g: 0.33333334, b: 0.33333334, a: 1}
