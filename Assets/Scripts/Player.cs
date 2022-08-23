@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public Health health { get; private set; }
     public Shape shape { get; private set; }
 
-    const float ignoreDamageTime = 1f;
+    const float ignoreDamageTime = 3f;
 
     static Collider2D[] hitColliders = new Collider2D[256];
 

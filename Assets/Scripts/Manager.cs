@@ -300,41 +300,6 @@ public class Manager : MonoBehaviour
 
         boss.shape.SetScale(new Vector2(3, 3));
 
-        // #5
-        // 상하좌우 영역
-        // 16 beats
-        {
-            Debug.Log("#5");
-
-            // Upper
-
-            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
-
-            PlayPattern(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, -2.5f)));
-
-            PlayPattern(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, 5), new Vector2(20, 10), new Vector2(1, 0)));
-
-            yield return new WaitForSeconds(4f * spb);
-
-            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
-
-            yield return new WaitForSeconds(4f * spb);
-
-            // Lower
-
-            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
-
-            PlayPattern(new MoveToPattern(boss.entity, 4f * spb, new Vector2(0, 2.5f)));
-
-            PlayPattern(new AreaPattern(4f * spb, 4f * spb, new Vector2(0, -5), new Vector2(20, 10), new Vector2(1, 0)));
-
-            yield return new WaitForSeconds(4f * spb);
-
-            PlayPattern(new ShootPattern(boss.entity, 4f * spb, targeting.GetTarget(), 2f * spb));
-
-            yield return new WaitForSeconds(4f * spb);
-        }
-
         // #0
         // IDLE
         // 8 beats
