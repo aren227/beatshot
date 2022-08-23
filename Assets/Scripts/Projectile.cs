@@ -69,7 +69,7 @@ public class Projectile : MonoBehaviour
             particle.scale = 0.2f;
             particle.speed = 3f;
 
-            DestroyImmediate(gameObject);
+            Destroy(gameObject);
         }
         else {
             transform.position = nextPos;

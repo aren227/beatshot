@@ -51,6 +51,14 @@ public class Shape : MonoBehaviour
     public SpriteRenderer shadowSpriteRenderer;
 
     void Awake() {
+        Reset();
+
+        Manager.Instance.shapes.Add(this);
+    }
+
+    public void Reset() {
+        props = new ShapeProperties();
+
         props.scale = Vector3.one;
         props.targetScale = 1;
 
@@ -58,7 +66,10 @@ public class Shape : MonoBehaviour
 
         shadowSpriteRenderer.gameObject.SetActive(false);
 
-        Manager.Instance.shapes.Add(this);
+        spriteRenderer.transform.localPosition = Vector3.zero;
+
+        ignoreRecorder = false;
+        ignoreUpdate = false;
     }
 
     void OnDestroy() {
@@ -213,8 +224,14 @@ public class Shape : MonoBehaviour
         }
     }
 
-    public static Shape Create() {
-        Shape shape = Instantiate(PrefabRegistry.Instance.shape).GetComponentInChildren<Shape>();
+    public void Release() {
+        PoolManager.Instance.Despawn(gameObject);
+    }
+
+    public static Shape Create(ShapeType type) {
+        Shape shape = PoolManager.Instance.Spawn("shape").GetComponent<Shape>();
+        shape.Reset();
+        shape.SetType(type);
         return shape;
     }
 }

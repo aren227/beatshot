@@ -187,8 +187,8 @@ public class LaserPattern : Pattern {
         anchor.transform.SetParent(entity.transform, false);
 
         for (int i = 0; i < count; i++) {
-            Shape shape = Shape.Create();
-            shape.SetType(ShapeType.BOX);
+            // @Todo: RELEASE SHAPE.
+            Shape shape = Shape.Create(ShapeType.BOX);
             shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
 
             shape.transform.SetParent(anchor.transform, false);
@@ -216,7 +216,7 @@ public class LaserPattern : Pattern {
 
         yield return new WaitForSeconds(laserDuration);
 
-        GameObject.DestroyImmediate(anchor);
+        GameObject.Destroy(anchor);
     }
 }
 
@@ -244,16 +244,15 @@ public class DashPattern : Pattern {
     }
 
     public IEnumerator Play() {
-        Shape shape = Shape.Create();
+        Shape shape = Shape.Create(ShapeType.BOX);
 
         shape.transform.position = targetPos;
         shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
-        shape.SetType(ShapeType.BOX);
         shape.SetScale(entity.GetComponentInChildren<Shape>().props.scale);
 
         yield return new WaitForSeconds(warningDuration);
 
-        GameObject.Destroy(shape.gameObject);
+        shape.Release();
 
         float begin = Manager.Instance.time;
 
@@ -289,10 +288,9 @@ public class AreaPattern : Pattern {
     }
 
     public IEnumerator Play() {
-        Shape shape = Shape.Create();
+        Shape shape = Shape.Create(ShapeType.BOX);
 
         shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
-        shape.SetType(ShapeType.BOX);
 
         shape.SetScale(size);
         shape.transform.position = center;
@@ -310,7 +308,7 @@ public class AreaPattern : Pattern {
         yield return new WaitForSeconds(duration);
 
         shape.transform.DOMove(center + moveDirection * 20, transitionDuration).OnComplete(() => {
-            if (shape) GameObject.DestroyImmediate(shape.gameObject);
+            shape.Release();
         });
     }
 }

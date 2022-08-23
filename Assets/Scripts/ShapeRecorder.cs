@@ -55,7 +55,7 @@ public class FrameSnapshot {
 
     public void Show() {
         foreach (ShapeSnapshot shapeSnapshot in shapeSnapshots) {
-            Shape shape = Shape.Create();
+            Shape shape = Shape.Create(shapeSnapshot.type);
 
             shape.transform.position = shapeSnapshot.position;
 
@@ -65,7 +65,6 @@ public class FrameSnapshot {
 
             shape.transform.localScale = shapeSnapshot.scale;
             shape.SetColor(shapeSnapshot.color);
-            shape.SetType(shapeSnapshot.type);
 
             shape.spriteRenderer.sortingOrder = shapeSnapshot.order;
 

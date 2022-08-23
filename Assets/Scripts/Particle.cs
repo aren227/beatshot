@@ -18,20 +18,25 @@ public class Particle : MonoBehaviour
     void Awake() {
     }
 
+    void OnDestroy() {
+        foreach (Shape shape in shapes) shape.Release();
+    }
+
     void Start() {
         Manager.Instance.particles.Add(this);
-
 
         shapes = new Shape[amount];
         velocities = new Vector2[amount];
 
         for (int i = 0; i < amount; i++) {
-            shapes[i] = Shape.Create();
+            shapes[i] = Shape.Create(ShapeType.CIRCLE);
 
             shapes[i].transform.SetParent(transform, false);
 
+            shapes[i].transform.localPosition = Vector3.zero;
+
             shapes[i].SetColor(color);
-            shapes[i].transform.localScale = Vector3.one * scale;
+            shapes[i].SetScale(Vector2.one * scale);
             shapes[i].Scale(0f, duration);
 
             // Particles are not recorded.
@@ -49,7 +54,7 @@ public class Particle : MonoBehaviour
         }
 
         if (beginTime + duration <= Manager.Instance.time) {
-            DestroyImmediate(gameObject);
+            Destroy(gameObject);
         }
     }
 

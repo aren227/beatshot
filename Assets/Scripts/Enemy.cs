@@ -44,7 +44,7 @@ public class Enemy : MonoBehaviour
                         particle.speed = 4f;
                     }
 
-                    DestroyImmediate(gameObject);
+                    Destroy(gameObject);
                 }
                 else {
                     // You win.

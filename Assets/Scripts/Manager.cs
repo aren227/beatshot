@@ -23,14 +23,14 @@ public class Manager : MonoBehaviour
     public List<Player> players = new List<Player>();
     public List<Enemy> enemies = new List<Enemy>();
     public List<Projectile> projectiles = new List<Projectile>();
-    public List<Shape> shapes = new List<Shape>();
+    public HashSet<Shape> shapes = new HashSet<Shape>();
     public List<Particle> particles = new List<Particle>();
 
     int nextPlayerId = 1;
     int nextEntityId = 1;
 
     ShapeRecorder shapeRecorder;
-    const float shapeRecordInterval = 0.05f;
+    const float shapeRecordInterval = 0.1f;
 
     const int maxClonedPlayers = 1;
     List<PlayerRecorder> playerRecorders = new List<PlayerRecorder>();
@@ -147,8 +147,6 @@ public class Manager : MonoBehaviour
 
         targeting.Reset();
 
-        Background.Instance.Clear();
-
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
 
         Music.Instance.audioSource.loop = true;
@@ -215,7 +213,7 @@ public class Manager : MonoBehaviour
                 Background.Instance.DoNextFrame(dt);
 
                 foreach (Shape shape in shapes) {
-                    if (!shape) continue;
+                    if (!shape || !shape.gameObject.activeInHierarchy) continue;
                     shape.DoNextFrame(dt);
                 }
 
@@ -227,7 +225,7 @@ public class Manager : MonoBehaviour
                 // Remove invalid pointers.
                 players.RemoveAll(x => !x);
                 projectiles.RemoveAll(x => !x);
-                shapes.RemoveAll(x => !x);
+                shapes.RemoveWhere(x => !x);
                 particles.RemoveAll(x => !x);
 
                 // Boss beats
@@ -605,20 +603,22 @@ public class Manager : MonoBehaviour
 
         DOTween.To(()=> Time.timeScale, x=> Time.timeScale = x, 0, 1f).SetEase(Ease.OutQuad).SetUpdate(true).OnComplete(() => {
 
-            foreach (Player player in players) if (player) DestroyImmediate(player.gameObject);
-            foreach (Enemy enemy in enemies) if (enemy) DestroyImmediate(enemy.gameObject);
-            foreach (Projectile projectile in projectiles) if (projectile) DestroyImmediate(projectile.gameObject);
-            foreach (Shape shape in shapes) if (shape) DestroyImmediate(shape.gameObject);
+            foreach (Player player in players) if (player) Destroy(player.gameObject);
+            foreach (Enemy enemy in enemies) if (enemy) Destroy(enemy.gameObject);
+            foreach (Projectile projectile in projectiles) if (projectile) Destroy(projectile.gameObject);
+            // foreach (Shape shape in shapes) if (shape) Destroy(shape.gameObject);
 
             // @Inefficient
             foreach (Particle particle in FindObjectsOfType<Particle>()) {
-                DestroyImmediate(particle.gameObject);
+                Destroy(particle.gameObject);
             }
 
             players.Clear();
             enemies.Clear();
             projectiles.Clear();
-            shapes.Clear();
+            // shapes.Clear();
+
+            PoolManager.Instance.DespawnAll("shape");
 
             float rewindDuration = Mathf.Log(time + 1);
 
@@ -648,10 +648,8 @@ public class Manager : MonoBehaviour
 
                 prevTime = time;
 
-                foreach (Shape shape in shapes) {
-                    DestroyImmediate(shape.gameObject);
-                }
-                shapes.Clear();
+                PoolManager.Instance.DespawnAll("shape");
+                // shapes.Clear();
 
                 shapeRecorder.Show(time);
             }, 0, rewindDuration).SetEase(Ease.InOutQuad).OnComplete(() => {
@@ -661,10 +659,8 @@ public class Manager : MonoBehaviour
 
                 Time.timeScale = 0;
 
-                foreach (Shape shape in shapes) {
-                    DestroyImmediate(shape.gameObject);
-                }
-                shapes.Clear();
+                PoolManager.Instance.DespawnAll("shape");
+                // shapes.Clear();
 
                 DOTween.To(() => cam.orthographicSize, x => cam.orthographicSize = x, 5, 0.7f).SetEase(Ease.OutCubic).SetUpdate(true);
 
@@ -744,7 +740,7 @@ public class Manager : MonoBehaviour
         yield return null;
 
         // Delete boss gameobject here.
-        DestroyImmediate(boss.gameObject);
+        Destroy(boss.gameObject);
 
         begin = Time.realtimeSinceStartup;
 

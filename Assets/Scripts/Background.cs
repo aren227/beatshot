@@ -29,11 +29,10 @@ public class Background : MonoBehaviour
         Vector2 worldMin = Manager.Instance.worldMin;
 
         if (curr < next) {
-            Shape shape = Shape.Create();
+            Shape shape = Shape.Create(ShapeType.BOX);
 
             float r = Random.Range(0f, 1f);
 
-            shape.SetType(ShapeType.BOX);
             shape.SetScale(Vector2.one * Mathf.Lerp(0.1f, 0.3f, r));
             shape.SetColor(particleColor);
 
@@ -48,19 +47,19 @@ public class Background : MonoBehaviour
         foreach (Entry entry in entries) {
             Vector2 pos = entry.shape.transform.position;
             if (pos.x < worldMin.x - 0.3f) {
-                DestroyImmediate(entry.shape.gameObject);
+                entry.shape.Release();
             }
             else {
                 entry.shape.transform.position = pos - new Vector2(dt * entry.velocity, 0);
             }
         }
 
-        entries.RemoveAll(x => !x.shape);
+        entries.RemoveAll(x => !x.shape.gameObject.activeInHierarchy);
     }
 
     public void Clear() {
         foreach (Entry entry in entries) {
-            if (entry.shape) DestroyImmediate(entry.shape.gameObject);
+            entry.shape.Release();
         }
         entries.Clear();
     }

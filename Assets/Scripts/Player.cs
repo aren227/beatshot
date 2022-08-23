@@ -47,12 +47,12 @@ public class Player : MonoBehaviour
 
         this.health.ignoreDamageUntil = Time.time + ignoreDamageTime;
 
-        Shape drop = Shape.Create();
+        Shape drop = Shape.Create(ShapeType.CIRCLE);
         drop.transform.position = transform.position;
 
         drop.SetColor(new Color(shape.props.color.r, shape.props.color.g, shape.props.color.b, 0.2f));
         drop.Fade(0.5f);
-        drop.Scale(3f, 0.5f);
+        drop.Scale(4f, 0.5f);
 
         // Particle
         {
@@ -68,7 +68,7 @@ public class Player : MonoBehaviour
         }
 
         if (health <= 0) {
-            DestroyImmediate(gameObject);
+            Destroy(gameObject);
 
             if (this == Manager.Instance.currentPlayer) {
                 Manager.Instance.RewindGame(musicEnded: false);
