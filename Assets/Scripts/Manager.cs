@@ -87,7 +87,8 @@ public class Manager : MonoBehaviour
         upmostLayerOpacity = 0;
 
         // Set music volume
-        Music.Instance.audioSource.volume = globalData.musicVolume;
+        Music.Instance.audioSource1.volume = globalData.musicVolume;
+        Music.Instance.audioSource2.volume = globalData.musicVolume;
 
         StartCoroutine(InitCoroutine());
     }
@@ -158,9 +159,10 @@ public class Manager : MonoBehaviour
 
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
 
-        Music.Instance.audioSource.loop = true;
-        Music.Instance.audioSource.time = 0;
-        if (!Music.Instance.audioSource.isPlaying) Music.Instance.audioSource.Play();
+        Music.Instance.audioSource2.Stop();
+
+        Music.Instance.audioSource1.time = 0;
+        Music.Instance.audioSource1.Play();
     }
 
     public Player AddPlayer() {
@@ -214,7 +216,7 @@ public class Manager : MonoBehaviour
                 float dt = Time.deltaTime;
                 deltaTime = dt;
 
-                Music.Instance.audioSource.pitch = Time.timeScale;
+                Music.Instance.audioSource1.pitch = Time.timeScale;
 
                 foreach (Player player in players) {
                     if (!player) continue;
@@ -274,7 +276,7 @@ public class Manager : MonoBehaviour
                 }
             }
             else {
-                Music.Instance.audioSource.pitch = 0;
+                Music.Instance.audioSource1.pitch = 0;
             }
         }
 
@@ -706,7 +708,14 @@ public class Manager : MonoBehaviour
             playerRecorders.Add(currentPlayerRecorder);
             currentPlayerRecorder = null;
 
-            // Music.Instance.audioSource.Stop();
+            float currentMusicTime = Music.Instance.audioSource1.time;
+            float currentMusicLength = Music.Instance.audioSource2.clip.length;
+
+            Music.Instance.audioSource1.Stop();
+
+            Music.Instance.audioSource2.time = Mathf.Max(currentMusicLength - currentMusicTime, 0);
+            Music.Instance.audioSource2.pitch = 0;
+            Music.Instance.audioSource2.Play();
 
             DOTween.To(() => playerBelowLayerOpacity, x => playerBelowLayerOpacity = x, 1, rewindDuration).SetEase(Ease.InCubic);
 
@@ -715,7 +724,7 @@ public class Manager : MonoBehaviour
             DOTween.To(() => time, x => {
                 time = x;
 
-                Music.Instance.audioSource.pitch = (time - prevTime) / Time.deltaTime;
+                Music.Instance.audioSource2.pitch = -(time - prevTime) / Time.deltaTime;
 
                 prevTime = time;
 
@@ -793,7 +802,8 @@ public class Manager : MonoBehaviour
 
         StopBossPattern();
 
-        Music.Instance.audioSource.Stop();
+        Music.Instance.audioSource1.Stop();
+        Music.Instance.audioSource2.Stop();
 
         SFX.Instance.Play("postBigExplosion");
 

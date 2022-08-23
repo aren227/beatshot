@@ -147,6 +147,6 @@ public class Title : MonoBehaviour
     }
 
     void Update() {
-        Music.Instance.audioSource.volume = globalData.musicVolume * additionalMusicVolume;
+        Music.Instance.audioSource1.volume = globalData.musicVolume * additionalMusicVolume;
     }
 }

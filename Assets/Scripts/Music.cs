@@ -15,11 +15,8 @@ public class Music : MonoBehaviour
 
     static Music _instance;
 
-    public AudioSource audioSource;
-
-    void Awake() {
-        audioSource = GetComponent<AudioSource>();
-    }
+    public AudioSource audioSource1;
+    public AudioSource audioSource2;
 
     void LateUpdate() {
         // audioSource.pitch = Time.timeScale;
