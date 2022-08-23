@@ -316,6 +316,7 @@ public class AreaPattern : Pattern {
 
         shape.transform.position = center - moveDirection * 20;
         shape.transform.DOMove(center, transitionDuration);
+        shape.Shake(0.5f, 0.2f);
 
         shape.DoNextFrame(0);
 
