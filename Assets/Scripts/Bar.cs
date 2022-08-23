@@ -10,7 +10,7 @@ public class Bar : MonoBehaviour
 
     public bool upper;
 
-    void Start() {
+    void Update() {
         float pixels = 2;
 
         // @Hack: Idk why.
@@ -26,9 +26,7 @@ public class Bar : MonoBehaviour
 
         if (upper) transform.position = new Vector2(0, Manager.Instance.worldMax.y - worldPixel * 0.5f);
         else transform.position = new Vector2(0, Manager.Instance.worldMin.y + worldPixel * 0.5f);
-    }
 
-    void Update() {
         foreground.localScale = new Vector3(value, 1, 1);
         foreground.localPosition = new Vector3(-0.5f + 0.5f * value, 0, 0);
     }

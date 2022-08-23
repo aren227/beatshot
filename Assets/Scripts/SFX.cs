@@ -31,10 +31,10 @@ public class SFX : MonoBehaviour
 
         // @Todo: Pooling.
         if (sound == "shoot") {
-            audioSource.PlayOneShot(shoot, 0.7f * volume);
+            audioSource.PlayOneShot(shoot, 0.5f * volume);
         }
         else if (sound == "hit") {
-            audioSource.PlayOneShot(hit, 0.3f * volume);
+            audioSource.PlayOneShot(hit, 0.15f * volume);
         }
         else if (sound == "preBigExplosion") {
             audioSource.PlayOneShot(preBigExplosion, 1f * volume);
