@@ -704,7 +704,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: UNTITLED GAME
+  m_Text: BEATSHOT
 --- !u!222 &383274889
 CanvasRenderer:
   m_ObjectHideFlags: 0
