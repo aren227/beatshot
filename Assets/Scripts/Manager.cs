@@ -80,6 +80,9 @@ public class Manager : MonoBehaviour
         worldMin = new Vector2(-5 * (16f / 9f), -5);
         worldMax = new Vector2(5 * (16f / 9f), 5);
 
+        // Set music volume
+        Music.Instance.audioSource.volume = globalData.musicVolume;
+
         StartCoroutine(InitCoroutine());
     }
 

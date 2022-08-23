@@ -7,4 +7,7 @@ public class GlobalData : ScriptableObject
 {
     public List<LevelSO> levels;
     public LevelSO current;
+
+    public float musicVolume;
+    public float sfxVolume;
 }

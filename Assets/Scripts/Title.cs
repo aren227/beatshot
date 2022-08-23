@@ -21,6 +21,9 @@ public class Title : MonoBehaviour
 
     public List<Button> returnToMainButtons;
 
+    public Slider musicVolumeSlider;
+    public Slider sfxVolumeSlider;
+
     Canvas canvas;
     CanvasScaler canvasScaler;
 
@@ -86,6 +89,13 @@ public class Title : MonoBehaviour
                 currentAnchor = mainAnchor;
             });
         }
+
+        musicVolumeSlider.onValueChanged.AddListener(x => {
+            globalData.musicVolume = x;
+        });
+        sfxVolumeSlider.onValueChanged.AddListener(x => {
+            globalData.sfxVolume = x;
+        });
     }
 
     Vector2 GetActualPos(Vector2 pos) {

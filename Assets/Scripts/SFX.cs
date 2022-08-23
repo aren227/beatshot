@@ -25,12 +25,14 @@ public class SFX : MonoBehaviour
     }
 
     public void Play(string sound) {
+        float volume = Manager.Instance.globalData.sfxVolume;
+
         // @Todo: Pooling.
         if (sound == "shoot") {
-            audioSource.PlayOneShot(shoot, 0.7f);
+            audioSource.PlayOneShot(shoot, 0.7f * volume);
         }
         else if (sound == "hit") {
-            audioSource.PlayOneShot(hit, 0.3f);
+            audioSource.PlayOneShot(hit, 0.3f * volume);
         }
     }
 }
