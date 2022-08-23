@@ -22,7 +22,7 @@ public class ShapeRecorder
             shapeSnapshot.type = shape.props.type;
             shapeSnapshot.position = shape.spriteRenderer.transform.position;
             shapeSnapshot.rotation = shape.transform.eulerAngles.z;
-            shapeSnapshot.scale = shape.spriteRenderer.transform.lossyScale;
+            shapeSnapshot.scale = shape.props.scale;
             shapeSnapshot.order = shape.spriteRenderer.sortingOrder;
 
             frameSnapshot.shapeSnapshots.Add(shapeSnapshot);
@@ -63,7 +63,7 @@ public class FrameSnapshot {
             eulerAngles.z = shapeSnapshot.rotation;
             shape.transform.eulerAngles = eulerAngles;
 
-            shape.transform.localScale = shapeSnapshot.scale;
+            shape.SetScale(shapeSnapshot.scale);
             shape.SetColor(shapeSnapshot.color);
 
             shape.spriteRenderer.sortingOrder = shapeSnapshot.order;

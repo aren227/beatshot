@@ -183,25 +183,27 @@ public class Shape : MonoBehaviour
         if (props.faded) col.a = 0;
 
         if (props.scaleTime > 0) {
-            if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
-                spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
-                spriteRenderer.size = props.scale;
-            }
-            else {
-                spriteRenderer.transform.localScale = props.scale * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
-            }
+            // if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
+            //     spriteRenderer.transform.localScale = Vector3.one * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
+            //     spriteRenderer.size = props.scale;
+            // }
+            // else {
+                spriteRenderer.transform.localScale = Vector2.one * Mathf.Lerp(props.targetScale, props.prevScale, props.scaleTime / props.scaleDuration);
+            // }
 
             props.scaleTime -= Mathf.Min(dt, props.scaleTime);
         }
         else {
-            if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
-                spriteRenderer.transform.localScale = Vector3.one * props.targetScale;
-                spriteRenderer.size = props.scale;
-            }
-            else {
-                spriteRenderer.transform.localScale = props.scale * props.targetScale;
-            }
+            // if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
+            //     spriteRenderer.transform.localScale = Vector3.one * props.targetScale;
+            //     spriteRenderer.size = props.scale;
+            // }
+            // else {
+                spriteRenderer.transform.localScale = Vector2.one * props.targetScale;
+            // }
         }
+
+        transform.localScale = props.scale;
 
         spriteRenderer.color = col;
     }
