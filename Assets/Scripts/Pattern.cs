@@ -52,6 +52,7 @@ public class ShootPattern : Pattern {
                 projectile.velocity = direction * bulletSpeed;
 
                 projectile.IgnoreEntity(entity);
+                projectile.IgnoreClonedPlayers();
 
                 // @Hardcoded
                 Shape shape = projectile.GetComponentInChildren<Shape>();
@@ -162,6 +163,7 @@ public class BulletCirclePattern : Pattern {
             projectile.velocity = direction * bulletSpeed;
 
             projectile.IgnoreEntity(entity);
+            projectile.IgnoreClonedPlayers();
 
             // @Hardcoded
             projectile.GetComponentInChildren<Shape>().SetColor(Color.Lerp(Color.red, Color.white, 0.5f));

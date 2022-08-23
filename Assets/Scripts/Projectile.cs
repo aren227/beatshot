@@ -25,6 +25,10 @@ public class Projectile : MonoBehaviour
         collidedEntities.Add(entity.id);
     }
 
+    public void IgnoreClonedPlayers() {
+        Manager.Instance.MakeClonedPlayersIgnoreProjectile(this);
+    }
+
     public void DoNextFrame(float dt) {
         Vector2 curPos = (Vector2)transform.position;
         Vector2 nextPos = curPos + velocity * dt;

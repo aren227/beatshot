@@ -195,6 +195,13 @@ public class Manager : MonoBehaviour
         return projectile;
     }
 
+    public void MakeClonedPlayersIgnoreProjectile(Projectile projectile) {
+        foreach (Player player in players) {
+            if (player == currentPlayer) continue;
+            projectile.IgnoreEntity(player.entity);
+        }
+    }
+
     void Update() {
         deltaTime = 0;
 
