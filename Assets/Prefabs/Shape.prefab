@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4186653161811635319
 Transform:
   m_ObjectHideFlags: 0
@@ -39,7 +39,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3466196278570384229}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -134,6 +134,7 @@ MonoBehaviour:
   ignoreRecorder: 0
   ignoreUpdate: 0
   shadowSpriteRenderer: {fileID: 597876454168918984}
+  tempCollider: {fileID: 0}
 --- !u!1 &6414741162505675162
 GameObject:
   m_ObjectHideFlags: 0

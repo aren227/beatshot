@@ -53,9 +53,9 @@ public class IngameUi : MonoBehaviour
 
         titleAnchor.position = a;
 
-        titleAnchor.DOMove(b, 0.5f).SetEase(Ease.OutCubic).OnComplete(() => {
-            titleAnchor.DOMove(c, 2f).SetEase(Ease.Linear).OnComplete(() => {
-                titleAnchor.DOMove(d, 0.5f).SetEase(Ease.InCubic);
+        titleAnchor.DOMove(b, 0.5f).SetEase(Ease.OutCubic).SetUpdate(true).OnComplete(() => {
+            titleAnchor.DOMove(c, 2f).SetEase(Ease.Linear).SetUpdate(true).OnComplete(() => {
+                titleAnchor.DOMove(d, 0.5f).SetEase(Ease.InCubic).SetUpdate(true);
             });
         });
     }

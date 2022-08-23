@@ -54,7 +54,9 @@ public class ShootPattern : Pattern {
                 projectile.IgnoreEntity(entity);
 
                 // @Hardcoded
-                projectile.GetComponentInChildren<Shape>().SetColor(Color.Lerp(Color.red, Color.white, 0.5f));
+                Shape shape = projectile.GetComponentInChildren<Shape>();
+                shape.SetColor(Color.Lerp(Color.red, Color.white, 0.5f));
+                shape.DoNextFrame(0);
             }
 
             yield return new WaitForSeconds(shootRate);
@@ -290,20 +292,30 @@ public class AreaPattern : Pattern {
     public IEnumerator Play() {
         Shape shape = Shape.Create(ShapeType.BOX);
 
-        shape.SetColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
+        Color color = PrefabRegistry.Instance.warningColor;
+        color.a = 0.3f;
+
+        shape.SetColor(color);
 
         shape.SetScale(size);
         shape.transform.position = center;
 
+        shape.DoNextFrame(0);
+
         yield return new WaitForSeconds(warningDuration);
 
-        shape.SetColor(Color.red);
+        color = Color.red;
+        if (Manager.Instance.boss) color = Manager.Instance.boss.shape.props.color;
+
+        shape.SetColor(color);
         shape.SetToEnemy();
 
         float begin = Manager.Instance.time;
 
         shape.transform.position = center - moveDirection * 20;
         shape.transform.DOMove(center, transitionDuration);
+
+        shape.DoNextFrame(0);
 
         yield return new WaitForSeconds(duration);
 

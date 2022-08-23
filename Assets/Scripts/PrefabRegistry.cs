@@ -25,4 +25,7 @@ public class PrefabRegistry : MonoBehaviour
 
     // @Temp
     public Color shadowColor;
+    public Vector2 shadowOffset;
+
+    public Color warningColor;
 }

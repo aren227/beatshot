@@ -19,14 +19,12 @@ public class Enemy : MonoBehaviour
         health = GetComponent<Health>();
         shape = GetComponentInChildren<Shape>();
 
-        maxHealth = 550;
+        maxHealth = 500;
         health.health = maxHealth;
 
         scale = 3;
 
         health.onDamaged.AddListener(health => {
-            Debug.Log(health);
-
             if (health <= 0) {
                 if (Manager.Instance.boss != this) {
                     // If this is not the actual boss, then just destroy this.
@@ -53,7 +51,7 @@ public class Enemy : MonoBehaviour
             }
             else {
                 shape.Shake(0.3f, 0.15f);
-                shape.Tint(0.2f, Color.white);
+                shape.Tint(0.2f, Color.Lerp(shape.props.color, Color.white, 0.7f));
 
                 SFX.Instance.Play("hit");
             }
@@ -67,7 +65,7 @@ public class Enemy : MonoBehaviour
         shape.SetType(ShapeType.BOX);
         // innerShape.SetType(ShapeType.BOX);
 
-        shape.SetShadow(new Vector2(1, -1) * 0.07f, PrefabRegistry.Instance.shadowColor);
+        shape.SetShadow(PrefabRegistry.Instance.shadowOffset, PrefabRegistry.Instance.shadowColor);
     }
 
     void Update() {

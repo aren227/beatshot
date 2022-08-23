@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour
     }
 
     void Start() {
-        shape.SetShadow(new Vector2(1, -1) * 0.04f, PrefabRegistry.Instance.shadowColor);
+        shape.SetShadow(PrefabRegistry.Instance.shadowOffset * 0.7f, PrefabRegistry.Instance.shadowColor);
     }
 
     public void IgnoreEntity(Entity entity) {
@@ -59,15 +59,31 @@ public class Projectile : MonoBehaviour
 
         if (destroy) {
             // Particle
-            Particle particle = Particle.Create();
+            {
+                Particle particle = Particle.Create();
 
-            particle.transform.position = transform.position;
+                particle.transform.position = transform.position;
 
-            particle.amount = 16;
-            particle.color = GetComponentInChildren<Shape>().props.color;
-            particle.duration = 0.4f;
-            particle.scale = 0.25f;
-            particle.speed = 3f;
+                particle.amount = 16;
+                particle.color = GetComponentInChildren<Shape>().props.color;
+                particle.duration = 0.4f;
+                particle.scale = 0.25f;
+                particle.speed = 3f;
+            }
+
+            // Drop fx
+            {
+                Shape drop = Shape.Create(ShapeType.CIRCLE);
+
+                // @Hardcoded: Low order (like shadow)
+                drop.spriteRenderer.sortingOrder = -10;
+
+                drop.transform.position = transform.position;
+
+                drop.SetColor(new Color(shape.props.color.r, shape.props.color.g, shape.props.color.b, 0.06f));
+                drop.Fade(0.5f);
+                drop.Scale(2f, 0.5f);
+            }
 
             Destroy(gameObject);
         }

@@ -33,7 +33,7 @@ public class Player : MonoBehaviour
 
     void Start() {
         shape.SetRadius(0.25f);
-        shape.SetShadow(new Vector2(1, -1) * 0.04f, PrefabRegistry.Instance.shadowColor);
+        shape.SetShadow(PrefabRegistry.Instance.shadowOffset * 0.7f, PrefabRegistry.Instance.shadowColor);
     }
 
     public void MakeInvincible(float time) {

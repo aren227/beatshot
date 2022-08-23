@@ -70,6 +70,8 @@ public class Shape : MonoBehaviour
 
         spriteRenderer.transform.localPosition = Vector3.zero;
 
+        spriteRenderer.sortingOrder = 0;
+
         ignoreRecorder = false;
         ignoreUpdate = false;
 
@@ -188,7 +190,9 @@ public class Shape : MonoBehaviour
             if (props.fadeTime <= 0) props.faded = true;
         }
 
-        if (props.faded) col.a = 0;
+        if (props.faded) {
+            col.a = 0;
+        }
 
         if (props.scaleTime > 0) {
             // if (spriteRenderer.drawMode == SpriteDrawMode.Sliced) {
@@ -214,6 +218,10 @@ public class Shape : MonoBehaviour
         transform.localScale = props.scale;
 
         spriteRenderer.color = col;
+
+        if (props.faded) {
+            PoolManager.Instance?.Despawn(gameObject);
+        }
     }
 
     void LateUpdate() {

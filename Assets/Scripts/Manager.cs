@@ -743,7 +743,8 @@ public class Manager : MonoBehaviour
 
         const float shakeIntensity = 1f;
 
-        Color tintColor = Color.white;
+        // @Hardcoded: Tint color. Currently copied from Enemy.cs.
+        Color tintColor = Color.Lerp(boss.shape.props.color, Color.white, 0.7f);
         Color originalColor = boss.shape.props.color;
 
         SFX.Instance.Play("preBigExplosion");

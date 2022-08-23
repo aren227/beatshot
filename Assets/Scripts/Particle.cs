@@ -53,6 +53,8 @@ public class Particle : MonoBehaviour
 
             if (changeOrder) shapes[i].spriteRenderer.sortingOrder = order;
 
+            shapes[i].DoNextFrame(0);
+
             velocities[i] = Random.insideUnitCircle.normalized * speed * Random.Range(0.5f, 1f);
         }
 
