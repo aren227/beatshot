@@ -322,10 +322,23 @@ public class Manager : MonoBehaviour
         {
             Debug.Log("#6");
 
-            PlayPattern(new FollowPattern(boss.entity, 16f * spb, 360 * 2, targeting.GetTarget()));
+            Vector2[] points = new Vector2[] { new Vector2(-5f, 2.5f), new Vector2(-5f, -2.5f), new Vector2(5f, -2.5f), new Vector2(5f, 2.5f) };
 
-            yield return new WaitForSeconds(16f * spb);
+            for (int i = 0; i < 1; i++) {
+                for (int j = 0; j < 4; j++) {
+                    PlayPattern(new MoveToPattern(boss.entity, 4 * spb, points[j]));
+                    // Shoot once
+                    PlayPattern(new ShootPattern(boss.entity, 0.1f, targeting.GetTarget()));
+                    yield return new WaitForSeconds(4 * spb);
+                }
+            }
+
+            // PlayPattern(new FollowPattern(boss.entity, 16f * spb, 360 * 2, targeting.GetTarget()));
+
+            // yield return new WaitForSeconds(16f * spb);
         }
+
+        PlayPattern(new MoveToPattern(boss.entity, 2 * spb, new Vector2(0, 0)));
 
         yield return new WaitForSeconds(4 * spb);
 
