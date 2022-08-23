@@ -15,5 +15,6 @@ MonoBehaviour:
   levels:
   - {fileID: 11400000, guid: 81a7445e824f7be48a4f0476e25a1845, type: 2}
   current: {fileID: 11400000, guid: 81a7445e824f7be48a4f0476e25a1845, type: 2}
-  musicVolume: 1
-  sfxVolume: 1
+  musicVolume: 0.5
+  sfxVolume: 0.5
+  ending: 0
