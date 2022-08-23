@@ -69,6 +69,14 @@ public class Manager : MonoBehaviour
 
     public Vector2 worldMin, worldMax;
 
+    public Bar bossBar;
+    public Bar timeBar;
+
+    void Awake() {
+        worldMin = new Vector2(-5 * (16f / 9f), -5);
+        worldMax = new Vector2(5 * (16f / 9f), 5);
+    }
+
     void Start() {
         playerBelowLayer.enabled = true;
         playerBelowLayer.color = Color.black;
@@ -77,9 +85,6 @@ public class Manager : MonoBehaviour
         upmostLayer.enabled = true;
         upmostLayer.color = Color.black;
         upmostLayerOpacity = 0;
-
-        worldMin = new Vector2(-5 * (16f / 9f), -5);
-        worldMax = new Vector2(5 * (16f / 9f), 5);
 
         // Set music volume
         Music.Instance.audioSource.volume = globalData.musicVolume;
@@ -266,6 +271,11 @@ public class Manager : MonoBehaviour
         // @Hardcoded: Background color
         playerBelowLayer.color = new Color(0.05f, 0.05f, 0.05f, playerBelowLayerOpacity);
         upmostLayer.color = new Color(0.05f, 0.05f, 0.05f, upmostLayerOpacity);
+
+        timeBar.value = Mathf.Clamp01(beamTime / totalBeats);
+
+        if (boss) bossBar.value = Mathf.Clamp01((float)boss.health.health / boss.maxHealth);
+        else bossBar.value = 0;
     }
 
     void PlayPattern(Pattern pattern) {
@@ -277,60 +287,6 @@ public class Manager : MonoBehaviour
         boss.transform.position = Vector3.zero;
 
         boss.shape.SetScale(new Vector2(3, 3));
-
-        // #7
-        // 최대 두명 타겟팅해서 따라다니기 + 약한 원
-        // 16 beats
-        {
-            Debug.Log("#7");
-
-            Player playerA = null, playerB = null;
-
-            targeting.GetTwoTargets(ref playerA, ref playerB);
-
-            Player[] players = new Player[] { playerA, playerB };
-            Enemy[] enemies = new Enemy[] { null, null };
-
-            for (int i = 0; i < 2; i++) {
-                Player player = players[i];
-
-                if (!player) continue;
-
-                Enemy enemy = AddEnemy();
-                enemy.shape.SetScale(new Vector2(1, 1));
-                enemy.health.health = 20;
-
-                PlayPattern(new FollowPattern(enemy.entity, 16f * spb, 360 * 2, player));
-
-                enemies[i] = enemy;
-
-                // PlayPattern(new ShootPattern(enemy.entity, 16f * spb, player, 1f * spb));
-            }
-
-            LockDamagePattern lockDamagePattern = new LockDamagePattern(boss, 16f * spb);
-
-            for (int i = 0; i < 2; i++) {
-                if (enemies[i]) lockDamagePattern.targetEntities.Add(enemies[i].entity);
-            }
-
-            PlayPattern(lockDamagePattern);
-
-            for (int i = 0; i < 4; i++) {
-                BulletCirclePattern pattern = new BulletCirclePattern(boss.entity, i * 45);
-                pattern.count = 4;
-                PlayPattern(pattern);
-
-                yield return new WaitForSeconds(4f * spb);
-            }
-
-            // Delete enemies.
-            for (int i = 0; i < 2; i++) {
-                if (enemies[i]) {
-                    enemies[i].health.Damage(enemies[i].health.health);
-                }
-            }
-        }
-
 
         // #0
         // IDLE
@@ -535,8 +491,8 @@ public class Manager : MonoBehaviour
             PlayPattern(lockDamagePattern);
 
             for (int i = 0; i < 4; i++) {
-                BulletCirclePattern pattern = new BulletCirclePattern(boss.entity, 4);
-                pattern.beginAngle = i * 45;
+                BulletCirclePattern pattern = new BulletCirclePattern(boss.entity, i * 45);
+                pattern.count = 4;
                 PlayPattern(pattern);
 
                 yield return new WaitForSeconds(4f * spb);
