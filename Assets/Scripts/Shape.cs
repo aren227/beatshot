@@ -56,7 +56,7 @@ public class Shape : MonoBehaviour
 
         SetColor(spriteRenderer.color);
 
-        shadowSpriteRenderer.enabled = false;
+        shadowSpriteRenderer.gameObject.SetActive(false);
 
         Manager.Instance.shapes.Add(this);
     }
@@ -95,7 +95,8 @@ public class Shape : MonoBehaviour
     }
 
     public void SetShadow(Vector2 offset, Color color) {
-        shadowSpriteRenderer.enabled = true;
+        shadowSpriteRenderer.gameObject.SetActive(true);
+
         shadowSpriteRenderer.sprite = spriteRenderer.sprite;
         shadowSpriteRenderer.color = color;
 
@@ -195,7 +196,7 @@ public class Shape : MonoBehaviour
     }
 
     void LateUpdate() {
-        if (shadowSpriteRenderer.enabled) {
+        if (shadowSpriteRenderer.gameObject.activeInHierarchy) {
             shadowSpriteRenderer.transform.localScale = spriteRenderer.transform.localScale;
             shadowSpriteRenderer.transform.position = (Vector2)spriteRenderer.transform.position + props.shadowOffset;
         }

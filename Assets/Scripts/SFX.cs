@@ -30,7 +30,7 @@ public class SFX : MonoBehaviour
             audioSource.PlayOneShot(shoot, 0.7f);
         }
         else if (sound == "hit") {
-            audioSource.PlayOneShot(hit, 0.7f);
+            audioSource.PlayOneShot(hit, 0.3f);
         }
     }
 }

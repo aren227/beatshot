@@ -147,6 +147,8 @@ public class Manager : MonoBehaviour
 
         targeting.Reset();
 
+        Background.Instance.Clear();
+
         bossPatternCoroutine = StartCoroutine(DoBossPattern());
 
         Music.Instance.audioSource.loop = true;
@@ -209,6 +211,8 @@ public class Manager : MonoBehaviour
                     if (!projectile) continue;
                     projectile.DoNextFrame(dt);
                 }
+
+                Background.Instance.DoNextFrame(dt);
 
                 foreach (Shape shape in shapes) {
                     if (!shape) continue;
