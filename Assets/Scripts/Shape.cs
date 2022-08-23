@@ -239,7 +239,7 @@ public class Shape : MonoBehaviour
     }
 
     public void Release() {
-        PoolManager.Instance.Despawn(gameObject);
+        PoolManager.Instance?.Despawn(gameObject);
     }
 
     public static Shape Create(ShapeType type) {

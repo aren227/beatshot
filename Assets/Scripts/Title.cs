@@ -31,6 +31,8 @@ public class Title : MonoBehaviour
 
     public GlobalData globalData;
 
+    float additionalMusicVolume = 1;
+
     void Start() {
         canvas = mainAnchor.GetComponentInParent<Canvas>();
         canvasScaler = mainAnchor.GetComponentInParent<CanvasScaler>();
@@ -39,15 +41,34 @@ public class Title : MonoBehaviour
         optionsAnchor.gameObject.SetActive(true);
         creditsAnchor.gameObject.SetActive(true);
 
-        MoveAnchor(optionsAnchor, Vector2.left);
-        MoveAnchor(creditsAnchor, Vector2.left);
+        if (globalData.ending) {
+            globalData.ending = false;
 
-        AnimateAnchor(mainAnchor, Vector2.down, Vector2.zero);
+            MoveAnchor(mainAnchor, Vector2.right);
+            MoveAnchor(optionsAnchor, Vector2.left);
 
-        currentAnchor = mainAnchor;
+            AnimateAnchor(creditsAnchor, Vector2.down, Vector2.zero, duration: 1f);
+
+            currentAnchor = creditsAnchor;
+        }
+        else {
+            MoveAnchor(optionsAnchor, Vector2.left);
+            MoveAnchor(creditsAnchor, Vector2.left);
+
+            AnimateAnchor(mainAnchor, Vector2.down, Vector2.zero);
+
+            currentAnchor = mainAnchor;
+
+        }
+
+        additionalMusicVolume = 0;
+        DOTween.To(() => additionalMusicVolume, x => additionalMusicVolume = x, 1, 1f).SetEase(Ease.Linear);
+
 
         playButton.onClick.AddListener(() => {
             if (animating) return;
+
+            DOTween.To(() => additionalMusicVolume, x => additionalMusicVolume = x, 0, 0.3f).SetEase(Ease.Linear);
 
             AnimateAnchor(mainAnchor, Vector2.zero, Vector2.left, () => {
                 globalData.current = globalData.levels[0];
@@ -111,17 +132,21 @@ public class Title : MonoBehaviour
         transform.position = to;
     }
 
-    void AnimateAnchor(Transform transform, Vector2 from, Vector2 to, UnityAction action = null) {
+    void AnimateAnchor(Transform transform, Vector2 from, Vector2 to, UnityAction action = null, float duration = 0.3f) {
         animating = true;
 
         from = GetActualPos(from);
         to = GetActualPos(to);
 
         transform.position = from;
-        transform.DOMove(to, 0.3f).SetEase(Ease.OutCubic).OnComplete(() => {
+        transform.DOMove(to, duration).SetEase(Ease.OutCubic).OnComplete(() => {
             animating = false;
 
             if (action != null) action.Invoke();
         });
+    }
+
+    void Update() {
+        Music.Instance.audioSource.volume = globalData.musicVolume * additionalMusicVolume;
     }
 }

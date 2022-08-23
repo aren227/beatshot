@@ -13,13 +13,22 @@ public class Particle : MonoBehaviour
     public float scale;
     public float speed;
 
+    int order;
+    bool changeOrder;
+
     float beginTime;
 
     void Awake() {
     }
 
+    // This must be called before Start() is called.
+    public void SetOrder(int order) {
+        this.order = order;
+        changeOrder = true;
+    }
+
     void OnDestroy() {
-        foreach (Shape shape in shapes) shape.Release();
+        // foreach (Shape shape in shapes) shape.Release();
     }
 
     void Start() {
@@ -42,6 +51,8 @@ public class Particle : MonoBehaviour
             // Particles are not recorded.
             shapes[i].ignoreRecorder = true;
 
+            if (changeOrder) shapes[i].spriteRenderer.sortingOrder = order;
+
             velocities[i] = Random.insideUnitCircle.normalized * speed * Random.Range(0.5f, 1f);
         }
 
@@ -54,8 +65,13 @@ public class Particle : MonoBehaviour
         }
 
         if (beginTime + duration <= Manager.Instance.time) {
-            Destroy(gameObject);
+            Remove();
         }
+    }
+
+    public void Remove() {
+        foreach (Shape shape in shapes) shape.Release();
+        Destroy(gameObject);
     }
 
     public static Particle Create() {

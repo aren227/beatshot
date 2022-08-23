@@ -19,7 +19,7 @@ public class Enemy : MonoBehaviour
         health = GetComponent<Health>();
         shape = GetComponentInChildren<Shape>();
 
-        maxHealth = 1000;
+        maxHealth = 10;
         health.health = maxHealth;
 
         scale = 3;
@@ -71,6 +71,6 @@ public class Enemy : MonoBehaviour
     }
 
     void Update() {
-        shape.SetScale(Vector2.one * scale * Mathf.Lerp(0.5f, 1f, ((float)health.health / maxHealth)));
+        // shape.SetScale(Vector2.one * scale * Mathf.Lerp(0.5f, 1f, ((float)health.health / maxHealth)));
     }
 }

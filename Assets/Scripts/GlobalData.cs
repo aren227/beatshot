@@ -10,4 +10,6 @@ public class GlobalData : ScriptableObject
 
     public float musicVolume;
     public float sfxVolume;
+
+    public bool ending;
 }

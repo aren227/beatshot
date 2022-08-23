@@ -163,7 +163,7 @@ MonoBehaviour:
   shape: {fileID: 3997094830818932380, guid: df7ce2d13fdcaae4292bef275668f5f0, type: 3}
   circleSprite: {fileID: 21300000, guid: 92eebd9a5e04b154db5638e6dc510c6a, type: 3}
   boxSprite: {fileID: 21300000, guid: c9f61dba716fbb845afb424ccf2ab72f, type: 3}
-  shadowColor: {r: 0.09045453, g: 0.10854542, b: 0.199, a: 1}
+  shadowColor: {r: 0.17568628, g: 0.18859385, b: 0.2509804, a: 1}
 --- !u!4 &51542214
 Transform:
   m_ObjectHideFlags: 0
@@ -317,6 +317,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shoot: {fileID: 8300000, guid: e27e6b3a5e6babd439b5b1bab10f80b7, type: 3}
   hit: {fileID: 8300000, guid: 21e82555f03e5814cb57849630ee9417, type: 3}
+  preBigExplosion: {fileID: 8300000, guid: c0d7c9aaa6a180447a2ca4d9240822bc, type: 3}
+  postBigExplosion: {fileID: 8300000, guid: fe14dbb0d82c90541b380e3227b8caf9, type: 3}
 --- !u!114 &51542218
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -329,7 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b91d23e630ab9448ba8691d49c7e54a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleColor: {r: 0.07, g: 0.07, b: 0.07, a: 1}
+  particleColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
 --- !u!114 &51542219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1088,7 +1090,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.03, g: 0.03, b: 0.03, a: 0}
+  m_BackGroundColor: {r: 0.05, g: 0.05, b: 0.05, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

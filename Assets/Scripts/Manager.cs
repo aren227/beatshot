@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class Manager : MonoBehaviour
 {
@@ -262,8 +263,9 @@ public class Manager : MonoBehaviour
             }
         }
 
-        playerBelowLayer.color = new Color(0, 0, 0, playerBelowLayerOpacity);
-        upmostLayer.color = new Color(0, 0, 0, upmostLayerOpacity);
+        // @Hardcoded: Background color
+        playerBelowLayer.color = new Color(0.05f, 0.05f, 0.05f, playerBelowLayerOpacity);
+        upmostLayer.color = new Color(0.05f, 0.05f, 0.05f, upmostLayerOpacity);
     }
 
     void PlayPattern(Pattern pattern) {
@@ -709,7 +711,7 @@ public class Manager : MonoBehaviour
 
             // @Inefficient
             foreach (Particle particle in FindObjectsOfType<Particle>()) {
-                Destroy(particle.gameObject);
+                particle.Remove();
             }
 
             players.Clear();
@@ -788,6 +790,8 @@ public class Manager : MonoBehaviour
         Color tintColor = Color.white;
         Color originalColor = boss.shape.props.color;
 
+        SFX.Instance.Play("preBigExplosion");
+
         while (Time.realtimeSinceStartup - begin < duration) {
             float t = Time.realtimeSinceStartup;
             float intensity = Mathf.Clamp01((t - begin) / duration);
@@ -818,7 +822,9 @@ public class Manager : MonoBehaviour
 
         Music.Instance.audioSource.Stop();
 
-        const float particleTime = 2f;
+        SFX.Instance.Play("postBigExplosion");
+
+        const float particleTime = 4f;
 
         Particle particle;
 
@@ -832,11 +838,16 @@ public class Manager : MonoBehaviour
             particle.color = originalColor;
             particle.duration = particleTime;
             particle.scale = 0.5f;
-            particle.speed = 7f;
+            particle.speed = 4f;
+
+            // @Hardcoded: Highest order like players.
+            particle.SetOrder(20);
         }
 
         // Wait for particle to initialize.
         yield return null;
+
+        DOTween.To(() => playerBelowLayerOpacity, x => playerBelowLayerOpacity = x, 1, particleTime).SetEase(Ease.OutQuad).SetUpdate(true);
 
         // Delete boss gameobject here.
         Destroy(boss.gameObject);
@@ -861,6 +872,16 @@ public class Manager : MonoBehaviour
         }
 
         // @Todo: Implement scene transition logic here.
+        const float fadeOutTime = 2;
+
+        DOTween.To(() => upmostLayerOpacity, x => upmostLayerOpacity = x, 1, fadeOutTime).SetEase(Ease.OutQuad).SetUpdate(true);
+
+        yield return new WaitForSecondsRealtime(fadeOutTime);
+
+        globalData.ending = true;
+
+        Time.timeScale = 1;
+        SceneManager.LoadScene("Title");
     }
 
     // IEnumerator RewindGameCoroutine() {
