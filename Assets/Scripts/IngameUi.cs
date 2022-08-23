@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 
@@ -34,6 +35,14 @@ public class IngameUi : MonoBehaviour
         pauseAnchor.gameObject.SetActive(true);
 
         pauseAnchor.position = GetActualPos(Vector2.up);
+
+        resumeButton.onClick.AddListener(() => {
+            if (Manager.Instance.state == GameState.PLAYING) Manager.Instance.SetPause(false);
+        });
+        backToTitleButton.onClick.AddListener(() => {
+            Time.timeScale = 1;
+            SceneManager.LoadScene("Title");
+        });
     }
 
     // @Copypasta: From Title.cs.
