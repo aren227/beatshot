@@ -206,8 +206,6 @@ public class Manager : MonoBehaviour
         deltaTime = 0;
 
         if (state == GameState.PLAYING) {
-            Music.Instance.audioSource.pitch = Time.timeScale;
-
             if (Input.GetKeyDown(KeyCode.Escape)) {
                 SetPause(!paused);
             }
@@ -215,6 +213,8 @@ public class Manager : MonoBehaviour
             if (!paused) {
                 float dt = Time.deltaTime;
                 deltaTime = dt;
+
+                Music.Instance.audioSource.pitch = Time.timeScale;
 
                 foreach (Player player in players) {
                     if (!player) continue;
@@ -272,6 +272,9 @@ public class Manager : MonoBehaviour
 
                     Manager.Instance.RewindGame(musicEnded: true);
                 }
+            }
+            else {
+                Music.Instance.audioSource.pitch = 0;
             }
         }
 
