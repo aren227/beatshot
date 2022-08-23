@@ -50,6 +50,8 @@ public class Shape : MonoBehaviour
 
     public SpriteRenderer shadowSpriteRenderer;
 
+    public Collider2D tempCollider;
+
     void Awake() {
         Reset();
 
@@ -70,6 +72,12 @@ public class Shape : MonoBehaviour
 
         ignoreRecorder = false;
         ignoreUpdate = false;
+
+        if (tempCollider) {
+            tempCollider.enabled = false;
+            Destroy(tempCollider);
+            tempCollider = null;
+        }
     }
 
     void OnDestroy() {
@@ -218,11 +226,15 @@ public class Shape : MonoBehaviour
     public void SetToEnemy() {
         gameObject.layer = LayerMask.NameToLayer("Enemy");
 
+        if (tempCollider) {
+            Destroy(tempCollider);
+        }
+
         if (props.type == ShapeType.CIRCLE) {
-            gameObject.AddComponent<CircleCollider2D>().radius = 0.5f;
+            tempCollider = gameObject.AddComponent<CircleCollider2D>();
         }
         else {
-            gameObject.AddComponent<BoxCollider2D>();
+            tempCollider = gameObject.AddComponent<BoxCollider2D>();
         }
     }
 

@@ -65,8 +65,8 @@ public class Projectile : MonoBehaviour
 
             particle.amount = 16;
             particle.color = GetComponentInChildren<Shape>().props.color;
-            particle.duration = 0.3f;
-            particle.scale = 0.2f;
+            particle.duration = 0.4f;
+            particle.scale = 0.25f;
             particle.speed = 3f;
 
             Destroy(gameObject);
