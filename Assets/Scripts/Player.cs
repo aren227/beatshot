@@ -93,7 +93,10 @@ public class Player : MonoBehaviour
 
         if (this != Manager.Instance.currentPlayer) {
             // Dark bullet for cloned player.
-            projectile.GetComponentInChildren<Shape>().SetColor(Color.yellow * 0.5f);
+            // projectile.GetComponentInChildren<Shape>().SetColor(Color.yellow * 0.5f);
+
+            // White bullet for cloned players.
+            projectile.GetComponentInChildren<Shape>().SetColor(Color.white * 0.7f);
         }
     }
 
