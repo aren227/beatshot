@@ -463,6 +463,8 @@ public class Manager : MonoBehaviour
             yield return new WaitForSeconds(4f * spb);
         }
 
+        PlayPattern(new MoveToPattern(boss.entity, 4 * spb, new Vector2(0, 0)));
+
         // #7
         // 최대 두명 타겟팅해서 따라다니기 + 약한 원
         // 16 beats
@@ -691,6 +693,8 @@ public class Manager : MonoBehaviour
 
             state = GameState.REWINDING;
 
+            SetPause(false);
+
             Time.timeScale = 1;
 
             StopBossPattern();
@@ -782,6 +786,8 @@ public class Manager : MonoBehaviour
         }
 
         state = GameState.FINISH;
+
+        SetPause(false);
 
         // Time.timeScale = 1;
 

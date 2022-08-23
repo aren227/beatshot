@@ -70,7 +70,7 @@ public class Shape : MonoBehaviour
 
         spriteRenderer.transform.localPosition = Vector3.zero;
 
-        spriteRenderer.sortingOrder = 0;
+        // spriteRenderer.sortingOrder = 0;
 
         ignoreRecorder = false;
         ignoreUpdate = false;
@@ -254,6 +254,13 @@ public class Shape : MonoBehaviour
         Shape shape = PoolManager.Instance.Spawn("shape").GetComponent<Shape>();
         shape.Reset();
         shape.SetType(type);
+
+        // @Todo: Very dirty hack.
+        // This works because player, enemy, projectiles they are not using Shape.Create().
+        // Their orders are defined in their prefabs.
+        // I think they also use Shape.Create for consistency.
+        shape.spriteRenderer.sortingOrder = 0;
+
         return shape;
     }
 }
