@@ -1026,6 +1026,8 @@ MonoBehaviour:
   value: 0.5
   foreground: {fileID: 2080704434}
   upper: 0
+  leftBorder: {fileID: 0}
+  rightBorder: {fileID: 0}
 --- !u!212 &445627007
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1977,6 +1979,8 @@ MonoBehaviour:
   value: 0.5
   foreground: {fileID: 1397012635}
   upper: 1
+  leftBorder: {fileID: 1856346002}
+  rightBorder: {fileID: 1246765381}
 --- !u!212 &1666527300
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -10,6 +10,8 @@ public class Bar : MonoBehaviour
 
     public bool upper;
 
+    public Transform leftBorder, rightBorder;
+
     void Update() {
         float pixels = 2;
 
@@ -29,5 +31,9 @@ public class Bar : MonoBehaviour
 
         foreground.localScale = new Vector3(value, 1, 1);
         foreground.localPosition = new Vector3(-0.5f + 0.5f * value, 0, 0);
+
+        // @Hardcoded
+        if (leftBorder) leftBorder.transform.position = new Vector2(Manager.Instance.worldMin.x - 5, 0);
+        if (rightBorder) rightBorder.transform.position = new Vector2(Manager.Instance.worldMax.x + 5, 0);
     }
 }

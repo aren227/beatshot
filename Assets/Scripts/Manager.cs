@@ -73,8 +73,13 @@ public class Manager : MonoBehaviour
     public Bar timeBar;
 
     void Awake() {
-        worldMin = new Vector2(-5 * (16f / 9f), -5);
-        worldMax = new Vector2(5 * (16f / 9f), 5);
+        UpdateWorldBounds();
+    }
+
+    void UpdateWorldBounds() {
+        Camera cam = ScreenCamera.Instance.gameCamera;
+        worldMin = new Vector2(-5 * Mathf.Min(cam.aspect, 16f / 9), -5);
+        worldMax = new Vector2(5 * Mathf.Min(cam.aspect, 16f / 9), 5);
     }
 
     void Start() {
@@ -206,6 +211,8 @@ public class Manager : MonoBehaviour
 
     void Update() {
         deltaTime = 0;
+
+        UpdateWorldBounds();
 
         if (state == GameState.PLAYING) {
             if (Input.GetKeyDown(KeyCode.Escape)) {
