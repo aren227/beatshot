@@ -19,6 +19,22 @@ public class Background : MonoBehaviour
 
     public Color particleColor;
 
+    public void Warmup() {
+        float t = Manager.Instance.time;
+        // @Hack
+        float temp = t;
+        float dt = 1 / 4f; // Depends on spawnRate in DoNextFrame().
+        // float start = Time.realtimeSinceStartup;
+        for (int i = 0; i < 150; i++) {
+            Manager.Instance.time = temp;
+            DoNextFrame(dt);
+            temp += dt;
+        }
+        // Around 11ms.
+        // Debug.Log("Warmup took " + (Time.realtimeSinceStartup - start) * 1000 + "ms." );
+        Manager.Instance.time = t;
+    }
+
     public void DoNextFrame(float dt) {
         const float spawnRate = 4;
 

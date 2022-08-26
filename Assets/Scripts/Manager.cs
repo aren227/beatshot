@@ -127,6 +127,9 @@ public class Manager : MonoBehaviour
         // @Todo: Find valid positions.
         currentPlayer.transform.position = Random.insideUnitCircle.normalized * 3;
 
+        // Warmup background.
+        Background.Instance.Warmup();
+
         shapeRecorder = new ShapeRecorder();
 
         state = GameState.PLAYING;
