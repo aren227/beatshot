@@ -115,10 +115,10 @@ public class Player : MonoBehaviour
             const float speed = 7;
 
             Vector3 targetMoveDir = Vector3.zero;
-            if (Input.GetKey(KeyCode.W)) targetMoveDir += Vector3.up;
-            if (Input.GetKey(KeyCode.S)) targetMoveDir += Vector3.down;
-            if (Input.GetKey(KeyCode.A)) targetMoveDir += Vector3.left;
-            if (Input.GetKey(KeyCode.D)) targetMoveDir += Vector3.right;
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) targetMoveDir += Vector3.up;
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) targetMoveDir += Vector3.down;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) targetMoveDir += Vector3.left;
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) targetMoveDir += Vector3.right;
             targetMoveDir.Normalize();
 
             const float moveDirSmoothTime = 0.05f;
