@@ -285,6 +285,9 @@ public class Manager : MonoBehaviour
             else {
                 Music.Instance.audioSource1.pitch = 0;
             }
+
+            if (boss) bossBar.value = Mathf.Clamp01((float)boss.health.health / boss.maxHealth);
+            else bossBar.value = 0;
         }
 
         // @Hardcoded: Background color
@@ -292,9 +295,6 @@ public class Manager : MonoBehaviour
         upmostLayer.color = new Color(0.05f, 0.05f, 0.05f, upmostLayerOpacity);
 
         timeBar.value = Mathf.Clamp01(beamTime / totalBeats);
-
-        if (boss) bossBar.value = Mathf.Clamp01((float)boss.health.health / boss.maxHealth);
-        else bossBar.value = 0;
     }
 
     void PlayPattern(Pattern pattern) {

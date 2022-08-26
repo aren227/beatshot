@@ -13,6 +13,8 @@ public class ShapeRecorder
 
         lastRecordTime = frameSnapshot.time = Manager.Instance.time;
 
+        frameSnapshot.bossBarValue = Manager.Instance.bossBar.value;
+
         foreach (Shape shape in GameObject.FindObjectsOfType<Shape>()) {
             if (shape.ignoreRecorder) continue;
 
@@ -51,9 +53,12 @@ public class ShapeRecorder
 
 public class FrameSnapshot {
     public float time;
+    public float bossBarValue;
     public List<ShapeSnapshot> shapeSnapshots = new List<ShapeSnapshot>();
 
     public void Show() {
+        Manager.Instance.bossBar.value = bossBarValue;
+
         foreach (ShapeSnapshot shapeSnapshot in shapeSnapshots) {
             Shape shape = Shape.Create(shapeSnapshot.type);
 
