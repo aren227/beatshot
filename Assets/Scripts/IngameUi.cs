@@ -71,7 +71,7 @@ public class IngameUi : MonoBehaviour
 
     public void SetText(string title, string artist) {
         this.title.text = title;
-        this.artist.text = artist;
+        this.artist.text = $"by {artist}";
     }
 
     public void ShowPauseScreen() {
