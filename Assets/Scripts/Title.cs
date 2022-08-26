@@ -13,6 +13,7 @@ public class Title : MonoBehaviour
     public Transform creditsAnchor;
 
     public Button playButton;
+    public Button challengeButton;
     public Button optionsButton;
     public Button creditsButton;
     public Button exitButton;
@@ -72,6 +73,20 @@ public class Title : MonoBehaviour
 
             AnimateAnchor(mainAnchor, Vector2.zero, Vector2.left, () => {
                 globalData.current = globalData.levels[0];
+                globalData.hardMode = false;
+
+                SceneManager.LoadScene("SampleScene");
+            });
+        });
+
+        challengeButton.onClick.AddListener(() => {
+            if (animating) return;
+
+            DOTween.To(() => additionalMusicVolume, x => additionalMusicVolume = x, 0, 0.3f).SetEase(Ease.Linear);
+
+            AnimateAnchor(mainAnchor, Vector2.zero, Vector2.left, () => {
+                globalData.current = globalData.levels[0];
+                globalData.hardMode = true;
 
                 SceneManager.LoadScene("SampleScene");
             });

@@ -27,7 +27,14 @@ public class Player : MonoBehaviour
         health = GetComponent<Health>();
         shape = GetComponentInChildren<Shape>();
 
-        health.health = 3;
+        if (Manager.Instance.globalData.hardMode) {
+            health.health = 1;
+            shape.SetColor(PrefabRegistry.Instance.bluePlayerColor);
+        }
+        else {
+            health.health = 3;
+        }
+
         health.onDamaged.AddListener(TakeDamage);
     }
 

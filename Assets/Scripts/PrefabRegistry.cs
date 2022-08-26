@@ -30,4 +30,7 @@ public class PrefabRegistry : MonoBehaviour
     public Vector2 shadowOffset;
 
     public Color warningColor;
+
+    public Color bluePlayerColor;
+    public Color blueProjectileColor;
 }

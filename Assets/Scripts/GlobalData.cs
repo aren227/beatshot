@@ -12,4 +12,5 @@ public class GlobalData : ScriptableObject
     public float sfxVolume;
 
     public bool ending;
+    public bool hardMode;
 }
