@@ -111,6 +111,9 @@ public class Title : MonoBehaviour
             });
         }
 
+        musicVolumeSlider.value = Mathf.Clamp01(globalData.musicVolume);
+        sfxVolumeSlider.value = Mathf.Clamp01(globalData.sfxVolume);
+
         musicVolumeSlider.onValueChanged.AddListener(x => {
             globalData.musicVolume = x;
         });
